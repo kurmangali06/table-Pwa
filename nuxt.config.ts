@@ -5,9 +5,8 @@ export default defineNuxtConfig({
   modules: [
     '@ant-design-vue/nuxt',
     '@vite-pwa/nuxt'
-
   ],
-
+  ssr: false,
   pwa: {
     disable: false,
     registerType: 'autoUpdate',
