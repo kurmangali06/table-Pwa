@@ -3,8 +3,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   
   modules: [
-  '@vite-pwa/nuxt', 
-  '@ant-design-vue/nuxt'
+    '@ant-design-vue/nuxt',
+    '@vite-pwa/nuxt'
+
   ],
 
   pwa: {
