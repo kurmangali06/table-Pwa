@@ -1,7 +1,8 @@
 <template>
     <div>
-        <a-modal v-model:open="open" :title="title" @ok="closeModal" @cancel="closeModal">
+        <a-modal width="1000px" v-model:open="open" :title="title" @cancel="closeModal">
          <slot/>
+         <template #footer></template>
         </a-modal>
       </div>
 </template>
@@ -20,8 +21,8 @@ const props = defineProps({
 })
 const open = ref(false)
 function closeModal() {
-    open.value =false
     emit('closeModal')
+    open.value = false
 }
 onMounted(() => {
     if(props.modelValue)

@@ -1,45 +1,148 @@
 <template >
     <div >
-      <a-button type="primary" @click="openModal">Добавить</a-button>
-      <a-table :dataSource="dataSource" :columns="columns" bordered  >
-        <template #emptyText>Данных нет</template>
-      </a-table>
+      <a-card class="title">
+        <a-input-search
+        v-model:value="search"
+        placeholder="Поиск по ФИО"
+        enter-button
+        allow-clear
+        @search="onSearch"
+      />
+      <div style="height: 10px;"></div>
+        <a-button type="default"  @click="openModal">Создать</a-button>
+      </a-card>
+      <div class="table">
+        <a-table @change="selecteted" :dataSource="list" :columns="columnsTitle" bordered  >
+          <template #emptyText>Данных нет</template>
+        </a-table>
+      </div>
+
     </div>
     <a-button type="dashed" @click="clearDate" html-type="submit">Clear</a-button>
     <BaseModal v-model="showModal" title="Добавление данных" @close-modal="closeModal" >
       <a-form
       :model="formState"
       name="basic"
-      :label-col="{ span: 8 }"
+      :label-col="{ span: 8}"
       :wrapper-col="{ span: 16 }"
       autocomplete="off"
-      @finish="onFinish"
-      @finishFailed="onFinishFailed"
     >
+    <a-divider dashed  plain orientation="left"><a-typography-title :level="5">Основная информация</a-typography-title></a-divider>
       <a-form-item
         label="ФИО клиента"
-        name="fullName"
-        :rules="[{ required: true, message: 'Пожалуйста, введите  ФИО пользователя!' }]"
+        v-bind="validateInfos.fullName"
       >
-        <a-input v-model:value="formState.fullName" />
+        <a-input v-model:value="formState.fullName"  />
       </a-form-item>
       <a-form-item
       label="Должность"
-      name="position"
-      :rules="[{ required: true, message: 'Пожалуйста, выберите пол!' }]"
+      v-bind="validateInfos.position"
     >
       <a-input v-model:value="formState.position" />
     </a-form-item>
     <a-form-item
       label="Пол"
-      name="gender"
-      :rules="[{ required: true, message: 'Пожалуйста, введите  должность пользователя!' }]"
+      v-bind="validateInfos.gender"
     >
-      <a-input v-model:value="formState.gender" />
+      <BaseSelect v-model:value="formState.gender" :options-list="genderList" placeholder="выберите пол" />
     </a-form-item>
-      <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-        <a-button type="primary" html-type="submit">Submit</a-button>
+    <a-form-item
+        label="Национальность"
+        v-bind="validateInfos.nationality"
+      >
+    <BaseSelect v-model:value="formState.nationality" :options-list="nationalityList" placeholder="выберите национальность" />
+   </a-form-item>
+    <a-form-item
+    label="Образование"
+      v-bind="validateInfos.education"
+      >
+      <BaseSelect v-model:value="formState.education" :options-list="educationList" placeholder="выберите образование" />
+    </a-form-item>
+    <a-form-item
+      label="Сфера деятельности"
+      v-bind="validateInfos.fieldOfActivity"
+        >
+      <BaseSelect v-model:value="formState.fieldOfActivity" :options-list="fieldOfActivityList" placeholder="выберите cферу деятельности" />
+    </a-form-item>
+    <a-form-item
+      label="Опыт работы"
+      v-bind="validateInfos.experience"
+      >
+      <BaseSelect v-model:value="formState.experience" :options-list="experienceList" placeholder="выберите опыт работы" />
       </a-form-item>
+      <a-form-item
+        label="Место рождения"
+        v-bind="validateInfos.placeOfBirth"
+      >
+      <BaseSelect v-model:value="formState.placeOfBirth" :options-list="placeOfBirthList" placeholder="выберите опыт работы" />
+      </a-form-item>
+      <a-divider dashed  plain orientation="left"><a-typography-title :level="5">Дополнительная информация</a-typography-title></a-divider>
+      <a-form-item
+        label="Ученая степень"
+       >
+        <BaseSelect v-model:value="formState.academicDegree" :options-list="academicDegreeList" placeholder="выберите из списка " />
+      </a-form-item>
+      <a-form-item
+        label="Уровень известности"
+        >
+        <BaseSelect v-model:value="formState.fameLevel" :options-list="fameLevelList" placeholder="выберите из списка " />
+      </a-form-item>
+      <a-form-item
+        label="Уровень профессионализма"
+        >
+        <BaseSelect v-model:value="formState.levelOfProfessionalism" :options-list="levelOfProfessionalismList" placeholder="выберите из списка " />
+      </a-form-item>
+      <a-form-item
+      label="Репутация"
+      >
+      <BaseSelect v-model:value="formState.reputation" :options-list="reputationList" placeholder="выберите из списка " />
+    </a-form-item>
+    <a-form-item
+      label="Опыт руководителя"
+      >
+      <BaseSelect v-model:value="formState.managersExperience" :options-list="managersExperienceList" placeholder="выберите из списка " />
+    </a-form-item>
+    <a-form-item
+      label="Религиозные убеждения"
+      >
+      <BaseSelect v-model:value="formState.religiousBeliefs" :options-list="religiousBeliefsList" placeholder="выберите из списка " />
+    </a-form-item>
+    <a-form-item
+      label="Уровень отмеченных достижений"
+      >
+      <BaseSelect v-model:value="formState.levelOfNotedAchievements" :options-list="levelOfNotedAchievementsList" placeholder="выберите из списка " />
+    </a-form-item>
+    <a-form-item
+      label="Семейное положение"
+      >
+      <BaseSelect v-model:value="formState.familyStatus" :options-list="familyStatusList" placeholder="выберите из списка " />
+     </a-form-item>
+     <a-form-item
+        label="Количество детей"
+        >
+        <a-input v-model:value.number="formState.amountOfChildren"  />
+    </a-form-item>
+    <a-form-item
+      label="Масштаб видения"
+      >
+      <BaseSelect v-model:value="formState.scopeOfVision" :options-list="scopeOfVisionList" placeholder="выберите из списка " />
+    </a-form-item>
+    <a-form-item
+        label="Тип лидерства"
+        >
+        <BaseSelect v-model:value="formState.leadershipType" :options-list="leadershipTypeList" placeholder="выберите из списка " />
+    </a-form-item>
+    <a-form-item
+      label="Отношение к воинской служб"
+      >
+      <BaseSelect v-model:value="formState.militaryService" :options-list="militaryServiceList" placeholder="выберите из списка " />
+    </a-form-item>
+    <a-form-item :wrapper-col="{ offset:4, span: 24 }">
+        <a-button type="primary" html-type="submit" class="btn">Изменить критерии</a-button>
+        <a-button type="default" @click.prevent="onSubmit" class="btn">Cохранить</a-button>
+        <a-button type="default"  class="btn" @click="closeModal">Отмена</a-button>
+        <a-button type="primary" html-type="submit">Перенести в архив</a-button>
+     </a-form-item>      
     </a-form>
     </BaseModal>
 </template>
@@ -48,14 +151,18 @@
 <script setup lang="ts">
 import { addDataToIndexedDB, getAllDataFromIndexedDB,clearIndexedDB } from '@/service/IndexedDBService'
 import { ref, onMounted, computed } from 'vue';
-import { getRandomId } from '~/service/helper';
+import {  genderList, getRandomId, nationalityList, educationList, fieldOfActivityList, experienceList, placeOfBirthList, 
+        academicDegreeList, fameLevelList, levelOfProfessionalismList, reputationList, managersExperienceList, religiousBeliefsList,
+        levelOfNotedAchievementsList, familyStatusList, scopeOfVisionList, leadershipTypeList, militaryServiceList } from '~/service/helper';
 import {type IFormState} from '@/interface/index'
+import { Form } from 'ant-design-vue';
+import { rulesRef, columnsTitle } from '~/service/table';
 
 
-
-const message = ref('');
 const list = ref<IFormState[]>([])
 const showModal = ref<boolean>(false);
+const search = ref<string>('')
+const useForm = Form.useForm;
 const formState = reactive<IFormState>({
   fullName: '',
   position: '',
@@ -64,15 +171,30 @@ const formState = reactive<IFormState>({
   education: '',
   fieldOfActivity: '',
   experience: '',
-  placeOfBirth: 0,
-  id: ''
+  placeOfBirth: '',
+  id: '',
+  // доп информация не обязательно
+  academicDegree: '',
+  levelOfProfessionalism: '',
+  reputation: '',
+  managersExperience: '',
+  levelOfNotedAchievements: '',
+  familyStatus: '',
+  amountOfChildren: 0,
+  scopeOfVision: '', 
+  leadershipType: ''
 })
 
-
+const { resetFields, validate, validateInfos } = useForm(formState, rulesRef);
 function getDate() {
   const resPromise = getAllDataFromIndexedDB()
   resPromise.then((res) => {
-    list.value = res
+    list.value = res.map((e: IFormState) => {
+    return {
+      key: e.id,
+      ...e
+    } 
+  })
 }).catch((error) => {
   console.error('Error:', error);
 });
@@ -82,63 +204,63 @@ async function clearDate() {
   await clearIndexedDB()
   getDate()
 }
-const columns = [
-          {
-            title: 'ФИО',
-            dataIndex: 'fullName',
-            key: 'fullName',
-          },
-          {
-            title: 'Должность',
-            dataIndex: 'position',
-            key: 'position',
-          },
-          {
-            title: 'Пол',
-            dataIndex: 'gender',
-            key: 'gender',
-          },
-];
-const dataSource = computed(() => {
-  return list.value.map((e: IFormState) => {
-    return {
-      key: e.id,
-      fullName: e.fullName,
-      gender: e.gender,
-      position: e.position
-    } 
-  })
-})
 
-function closeModal() {
-  showModal.value = false;
-}
+
 function openModal() {
   showModal.value = true;
 }
-const onFinish = async (values: IFormState) => {
+function closeModal() {
+  resetFields()
+  showModal.value = false;
+}
+function onSearch(searchValue: string) {
+  if(!searchValue)
+   getDate()
+  list.value = list.value.filter(person => person.fullName.includes(searchValue));
+  
+}
+async function onSubmit  (){
   const body = {
-   ...values,
+   ...formState,
     id: getRandomId()
   }
-  try {
-        const addedItemId = await addDataToIndexedDB(body);
+  validate()
+  .then(async() => {
+      const addedItemId = await addDataToIndexedDB(body);
         console.log(`Added object with ID: ${addedItemId} to IndexedDB`);
-        message.value = ''
+        closeModal()
+        resetFields()
         getDate()
-      } catch (error) {
-        console.error('Failed to add object to IndexedDB', error);
-      }
-  closeModal()
+    })
+    .catch(err => {
+      console.log('error', err);
+    });
+
 };
 
-const onFinishFailed = (errorInfo: any) => {
-  console.log('Failed:', errorInfo);
-};
+function selecteted(e: any) {
+  console.log(e);
+  
+}
+
 onMounted(() => {
   getDate()
 })
 </script>
-<style lang="scss" scoped>
-    
+
+<style lang="css" scoped>
+.btn {
+  margin-right: 10px;
+}
+.table {
+  width: 100%;
+  overflow-y: auto;
+}
+.title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+}
 </style>
