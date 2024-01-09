@@ -12,188 +12,116 @@
         <a-button type="default"  @click="openModal">Создать</a-button>
       </a-card>
       <div class="table">
-        <a-table @change="selecteted" :dataSource="list" :columns="columnsTitle" bordered  >
+        <a-table  :dataSource="list" :columns="columnsTitle" bordered  >
           <template #emptyText>Данных нет</template>
+       
+          <template #bodyCell="{ column, text , record}">
+            
+            <template v-if="column.dataIndex === 'mainName'">
+              <NuxtLink @click="editModal(record)">{{ record.main.fullName }}</NuxtLink>
+            </template>
+            <template v-else-if="column.dataIndex === 'position'">
+             {{ record.main.position }}
+            </template>
+            <template v-else-if="column.dataIndex === 'gender'">
+              {{ record.main.gender }}
+             </template>
+             <template v-else-if="column.dataIndex === 'nationality'">
+              {{ record.main.nationality }}
+             </template>
+             <template v-else-if="column.dataIndex === 'education'">
+              {{ record.main.education }}
+             </template>
+             <template v-else-if="column.dataIndex === 'fieldOfActivity'">
+              {{ record.main.fieldOfActivity }}
+             </template>
+             <template v-else-if="column.dataIndex === 'experience'">
+              {{ record.main.experience }}
+             </template>
+             <template v-else-if="column.dataIndex === 'placeOfBirth'">
+              {{ record.main.placeOfBirth }}
+             </template>
+             <template v-else-if="column.dataIndex === 'academicDegree'">
+              {{ record.sub.academicDegree }}
+             </template>
+             <template v-else-if="column.dataIndex === 'fameLevel'">
+              {{ record.sub.fameLevel }}
+             </template>
+             <template v-else-if="column.dataIndex === 'levelOfProfessionalism'">
+              {{ record.sub.levelOfProfessionalism }}
+             </template>
+             <template v-else-if="column.dataIndex === 'reputation'">
+              {{ record.sub.reputation }}
+             </template>
+             <template v-else-if="column.dataIndex === 'managersExperience'">
+              {{ record.sub.managersExperience }}
+             </template>
+             <template v-else-if="column.dataIndex === 'religiousBeliefs'">
+              {{ record.sub.managersExperience }}
+             </template>
+             <template v-else-if="column.dataIndex === 'levelOfNotedAchievements'">
+              {{ record.sub.levelOfNotedAchievements }}
+             </template>
+             <template v-else-if="column.dataIndex === 'familyStatus'">
+              {{ record.sub.familyStatus }}
+             </template>
+             <template v-else-if="column.dataIndex === 'amountOfChildren'">
+              {{ record.sub.amountOfChildren }}
+             </template>
+             <template v-else-if="column.dataIndex === 'scopeOfVision'">
+              {{ record.sub.scopeOfVision }}
+             </template>
+             <template v-else-if="column.dataIndex === 'leadershipType'">
+              {{ record.sub.leadershipType }}
+             </template>
+             <template v-else-if="column.dataIndex === 'militaryService'">
+              {{ record.sub.militaryService }}
+             </template>
+          </template>
         </a-table>
+        <a-row>
+          <a-col :span="24">
+            <a-statistic title="Итого" :value="count" >
+              <template #suffix>
+                человек
+              </template>
+            </a-statistic>
+          </a-col>
+          </a-row>
       </div>
-
     </div>
     <a-button type="dashed" @click="clearDate" html-type="submit">Clear</a-button>
-    <BaseModal v-model="showModal" title="Добавление данных" @close-modal="closeModal" >
-      <a-form
-      :model="formState"
-      name="basic"
-      :label-col="{ span: 8}"
-      :wrapper-col="{ span: 16 }"
-      autocomplete="off"
-    >
-    <a-divider dashed  plain orientation="left"><a-typography-title :level="5">Основная информация</a-typography-title></a-divider>
-      <a-form-item
-        label="ФИО клиента"
-        v-bind="validateInfos.fullName"
-      >
-        <a-input v-model:value="formState.fullName"  />
-      </a-form-item>
-      <a-form-item
-      label="Должность"
-      v-bind="validateInfos.position"
-    >
-      <a-input v-model:value="formState.position" />
-    </a-form-item>
-    <a-form-item
-      label="Пол"
-      v-bind="validateInfos.gender"
-    >
-      <BaseSelect v-model:value="formState.gender" :options-list="genderList" placeholder="выберите пол" />
-    </a-form-item>
-    <a-form-item
-        label="Национальность"
-        v-bind="validateInfos.nationality"
-      >
-    <BaseSelect v-model:value="formState.nationality" :options-list="nationalityList" placeholder="выберите национальность" />
-   </a-form-item>
-    <a-form-item
-    label="Образование"
-      v-bind="validateInfos.education"
-      >
-      <BaseSelect v-model:value="formState.education" :options-list="educationList" placeholder="выберите образование" />
-    </a-form-item>
-    <a-form-item
-      label="Сфера деятельности"
-      v-bind="validateInfos.fieldOfActivity"
-        >
-      <BaseSelect v-model:value="formState.fieldOfActivity" :options-list="fieldOfActivityList" placeholder="выберите cферу деятельности" />
-    </a-form-item>
-    <a-form-item
-      label="Опыт работы"
-      v-bind="validateInfos.experience"
-      >
-      <BaseSelect v-model:value="formState.experience" :options-list="experienceList" placeholder="выберите опыт работы" />
-      </a-form-item>
-      <a-form-item
-        label="Место рождения"
-        v-bind="validateInfos.placeOfBirth"
-      >
-      <BaseSelect v-model:value="formState.placeOfBirth" :options-list="placeOfBirthList" placeholder="выберите опыт работы" />
-      </a-form-item>
-      <a-divider dashed  plain orientation="left"><a-typography-title :level="5">Дополнительная информация</a-typography-title></a-divider>
-      <a-form-item
-        label="Ученая степень"
-       >
-        <BaseSelect v-model:value="formState.academicDegree" :options-list="academicDegreeList" placeholder="выберите из списка " />
-      </a-form-item>
-      <a-form-item
-        label="Уровень известности"
-        >
-        <BaseSelect v-model:value="formState.fameLevel" :options-list="fameLevelList" placeholder="выберите из списка " />
-      </a-form-item>
-      <a-form-item
-        label="Уровень профессионализма"
-        >
-        <BaseSelect v-model:value="formState.levelOfProfessionalism" :options-list="levelOfProfessionalismList" placeholder="выберите из списка " />
-      </a-form-item>
-      <a-form-item
-      label="Репутация"
-      >
-      <BaseSelect v-model:value="formState.reputation" :options-list="reputationList" placeholder="выберите из списка " />
-    </a-form-item>
-    <a-form-item
-      label="Опыт руководителя"
-      >
-      <BaseSelect v-model:value="formState.managersExperience" :options-list="managersExperienceList" placeholder="выберите из списка " />
-    </a-form-item>
-    <a-form-item
-      label="Религиозные убеждения"
-      >
-      <BaseSelect v-model:value="formState.religiousBeliefs" :options-list="religiousBeliefsList" placeholder="выберите из списка " />
-    </a-form-item>
-    <a-form-item
-      label="Уровень отмеченных достижений"
-      >
-      <BaseSelect v-model:value="formState.levelOfNotedAchievements" :options-list="levelOfNotedAchievementsList" placeholder="выберите из списка " />
-    </a-form-item>
-    <a-form-item
-      label="Семейное положение"
-      >
-      <BaseSelect v-model:value="formState.familyStatus" :options-list="familyStatusList" placeholder="выберите из списка " />
-     </a-form-item>
-     <a-form-item
-        label="Количество детей"
-        >
-        <a-input v-model:value.number="formState.amountOfChildren"  />
-    </a-form-item>
-    <a-form-item
-      label="Масштаб видения"
-      >
-      <BaseSelect v-model:value="formState.scopeOfVision" :options-list="scopeOfVisionList" placeholder="выберите из списка " />
-    </a-form-item>
-    <a-form-item
-        label="Тип лидерства"
-        >
-        <BaseSelect v-model:value="formState.leadershipType" :options-list="leadershipTypeList" placeholder="выберите из списка " />
-    </a-form-item>
-    <a-form-item
-      label="Отношение к воинской служб"
-      >
-      <BaseSelect v-model:value="formState.militaryService" :options-list="militaryServiceList" placeholder="выберите из списка " />
-    </a-form-item>
-    <a-form-item :wrapper-col="{ offset:4, span: 24 }">
-        <a-button type="primary" html-type="submit" class="btn">Изменить критерии</a-button>
-        <a-button type="default" @click.prevent="onSubmit" class="btn">Cохранить</a-button>
-        <a-button type="default"  class="btn" @click="closeModal">Отмена</a-button>
-        <a-button type="primary" html-type="submit">Перенести в архив</a-button>
-     </a-form-item>      
-    </a-form>
-    </BaseModal>
+    <addDate v-model:open="showModal"  :info="currentItem"/>
 </template>
 
 
 <script setup lang="ts">
-import { addDataToIndexedDB, getAllDataFromIndexedDB,clearIndexedDB } from '@/service/IndexedDBService'
-import { ref, onMounted, computed } from 'vue';
-import {  genderList, getRandomId, nationalityList, educationList, fieldOfActivityList, experienceList, placeOfBirthList, 
-        academicDegreeList, fameLevelList, levelOfProfessionalismList, reputationList, managersExperienceList, religiousBeliefsList,
-        levelOfNotedAchievementsList, familyStatusList, scopeOfVisionList, leadershipTypeList, militaryServiceList } from '~/service/helper';
+import {  getAllDataFromIndexedDB,clearIndexedDB, arrayLength } from '@/service/IndexedDBService'
+import { ref, onMounted } from 'vue';
+import addDate from '~/components/modal/addDate.vue';
 import {type IFormState} from '@/interface/index'
-import { Form } from 'ant-design-vue';
-import { rulesRef, columnsTitle } from '~/service/table';
+import {  columnsTitle } from '~/service/table';
 
 
 const list = ref<IFormState[]>([])
 const showModal = ref<boolean>(false);
 const search = ref<string>('')
-const useForm = Form.useForm;
-const formState = reactive<IFormState>({
-  fullName: '',
-  position: '',
-  gender: '',
-  nationality: '',
-  education: '',
-  fieldOfActivity: '',
-  experience: '',
-  placeOfBirth: '',
-  id: '',
-  // доп информация не обязательно
-  academicDegree: '',
-  levelOfProfessionalism: '',
-  reputation: '',
-  managersExperience: '',
-  levelOfNotedAchievements: '',
-  familyStatus: '',
-  amountOfChildren: 0,
-  scopeOfVision: '', 
-  leadershipType: ''
-})
+const currentItem = ref()
+const count = ref(0)
 
-const { resetFields, validate, validateInfos } = useForm(formState, rulesRef);
 function getDate() {
   const resPromise = getAllDataFromIndexedDB()
+  const resCount = arrayLength()
   resPromise.then((res) => {
     list.value = res.map((e: IFormState) => {
     return {
       key: e.id,
       ...e
     } 
+  })
+  resCount.then((res) => {
+    if(res)
+    count.value = res
   })
 }).catch((error) => {
   console.error('Error:', error);
@@ -207,41 +135,28 @@ async function clearDate() {
 
 
 function openModal() {
+  currentItem.value = null
   showModal.value = true;
 }
-function closeModal() {
-  resetFields()
-  showModal.value = false;
+function editModal(value: any) {
+  currentItem.value = null
+  currentItem.value = value
+  showModal.value = true;
+
 }
+
 function onSearch(searchValue: string) {
   if(!searchValue)
    getDate()
-  list.value = list.value.filter(person => person.fullName.includes(searchValue));
-  
+  list.value = list.value.filter(person => person.main.fullName.includes(searchValue));
+  count.value = list.value.length
 }
-async function onSubmit  (){
-  const body = {
-   ...formState,
-    id: getRandomId()
-  }
-  validate()
-  .then(async() => {
-      const addedItemId = await addDataToIndexedDB(body);
-        console.log(`Added object with ID: ${addedItemId} to IndexedDB`);
-        closeModal()
-        resetFields()
-        getDate()
-    })
-    .catch(err => {
-      console.log('error', err);
-    });
 
-};
 
-function selecteted(e: any) {
-  console.log(e);
-  
-}
+watch(() => showModal.value, () => {
+  if(showModal.value === false)
+  getDate()
+})
 
 onMounted(() => {
   getDate()
@@ -249,9 +164,7 @@ onMounted(() => {
 </script>
 
 <style lang="css" scoped>
-.btn {
-  margin-right: 10px;
-}
+
 .table {
   width: 100%;
   overflow-y: auto;

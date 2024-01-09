@@ -20,11 +20,13 @@ class MyDatabase extends Dexie {
 }
 
 const db = new MyDatabase();
-
+function prepareDataForStorage(data: IFormState): IFormState {
+  return JSON.parse(JSON.stringify(data));
+}
 export const addDataToIndexedDB = async (data: IFormState): Promise<number> => {
   try {
-    const addedItemId = await db.myObjectStore.add(data);
-    console.log(`Object added to the store with ID: ${addedItemId}`);
+    const serializableData = prepareDataForStorage(data);
+    const addedItemId = await db.myObjectStore.add(serializableData);
     return addedItemId;
   } catch (error) {
     console.error('Error adding object to the store', error);
@@ -45,12 +47,30 @@ export const getAllDataFromIndexedDB = async (): Promise<IFormState[]> => {
 export const clearIndexedDB = async (): Promise<void> => {
   try {
     await db.myObjectStore.clear();
-    console.log('IndexedDB cleared');
   } catch (error) {
     console.error('Error clearing IndexedDB', error);
     throw error;
   }
 };
+
+export const arrayLength = async () => {
+  try {
+    const length = await db.myObjectStore.count();
+    return length
+  } catch (error) {
+    console.error('Error getting array length', error);
+  }
+};
+export const updateDataInIndexedDB = async (id: any, newData: IFormState): Promise<void> => {
+  try {
+    const serializableData = prepareDataForStorage(newData);
+    await db.myObjectStore.update(id, serializableData);
+  } catch (error) {
+    console.error('Error updating object in the store', error);
+    throw error;
+  }
+};
+
 
 
 export default db;

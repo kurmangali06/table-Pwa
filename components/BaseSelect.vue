@@ -1,16 +1,17 @@
 <template >
         <a-select
-        v-model:value="value"
+        v-bind="$attrs"
         show-search
         :placeholder="placeholder"
         :options="optionsList"
+        @change="selectedValue"
         notFoundContent="Ничего не найдено"
         >
         </a-select>
 </template>
 <script lang="ts" setup>
 import { ref } from 'vue';
-import type { IValue } from '~/interface';
+
 import type { SelectProps } from 'ant-design-vue'
 
 const props = defineProps({
@@ -22,27 +23,16 @@ const props = defineProps({
         type: String,
         default: ''
     },
-    modelValueValue: {
-        type: String,
-        default: ''
-    }
 })
 const emit= defineEmits(['modelValue:value'])
 const value = ref<string>('');
 
-onMounted(() => {
-    if(props.modelValueValue)
-    value.value = props.modelValueValue
-})
+function selectedValue(e :any) {
+    emit('modelValue:value', e)
+}
 
-watch(() => props.modelValueValue, () => {
-    if(props.modelValueValue) {
-        value.value = props.modelValueValue
-        emit('modelValue:value', value.value)
-    }
-    
-})
+
 </script>
-<style lang="">
+<style lang="css" scoped>
     
 </style>

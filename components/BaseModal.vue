@@ -1,36 +1,23 @@
 <template>
-    <div>
-        <a-modal width="1000px" v-model:open="open" :title="title" @cancel="closeModal">
+    <div >
+        <a-modal :width="width"  v-bind="$attrs" @cancel="closeModal">
          <slot/>
          <template #footer></template>
         </a-modal>
       </div>
 </template>
 <script setup lang="ts">
-const emit = defineEmits(['closeModal'])
-
-const props = defineProps({
-    title: {
-        type: String,
-        required: true
+const emit = defineEmits(['update:open', 'hide'])
+defineProps({
+    width: {
+        type: Number,
+        default: 389,
     },
-    modelValue:{
-        type: Boolean,
-        default: false
-    }
-})
-const open = ref(false)
+});
+
 function closeModal() {
-    emit('closeModal')
-    open.value = false
+    emit('hide')
 }
-onMounted(() => {
-    if(props.modelValue)
-    open.value = props.modelValue
-})
-watch(() => props.modelValue,() => {
-    open.value = props.modelValue
-})
 
 </script>
 <style lang="">
