@@ -2,111 +2,182 @@ export function getRandomId() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 } 
 
-export const genderList = [
-    { value: 'Мужской', label: 'Мужской' },
-    {value: 'Женский', label: 'Женский'},
-]
-
-export const nationalityList = [
-    {value:'Казах' },
-    {value:'Русский (славянин)' },
-    {value:'Татарин' },
-    {value:'Узбек' },
-    {value:'Кыргыз' },
-    {value:'Дунганин' },
-    {value:'Чеченец' },
-    {value:'Ингуш' },
-    {value:'Кореец' },
-    {value:'Армянин' },
-]
-
-export const educationList = [
-    {value:'Западное ' },
-    {value:'Российское' },
-    {value:'Китайское' },
-    {value:'Исламские страны' },
-    {value:'Турецкое' },
-    {value:'Казахстанское' },
-    {value:'Азиатское' },
-]
-
 export const fieldOfActivityList = [
     {value:'Экономика, бизнес ' },
     {value:'Культура, спорт' },
     {value:'Наука, образование' },
     {value:'Государство, общество' },
 ]
-export const experienceList = [
-    {value:'Госслужба ' },
-    {value:'Квазигос' },
-    {value:'Частная организация' },
-    {value:'Международная/зарубежная' },
-]
-
-export const placeOfBirthList = [
-    {value:'Север ' },
-    {value:'Юг' },
-    {value:'Запад' },
-    {value:'Восток' },
-    {value:'Центр' },
-    {value:'Зарубеж' },
-]
-export const academicDegreeList = [
-    {value:'Да ' },
-    {value:'Нет' },
-]
-export const fameLevelList = [
-    {value:'Общеизвестный ' },
-    {value:'Неизвестный' },
-    {value:'В своем кругу' },
-]
-export const levelOfProfessionalismList = [
-    {value:'Международный  ' },
-    {value:'Национальный ' },
-    {value:'Региональный' },
-]
-export const reputationList = [
-    {value:'Безупречная  ' },
-    {value:'Скандальная/дискредитированная ' },
-]
-
-export const managersExperienceList = [
-    {value:'Высшее звено  ' },
-    {value:'Среднее звено ' },
-    {value:'Низшее звено ' },
-]
-export const religiousBeliefsList = [
-    {value:'Традиционные   ' },
-    {value:'Радикальные ' },
-    {value:'Светские ' },
-]
-export const levelOfNotedAchievementsList = [
-    {value:'Городской/районный   ' },
-    {value:'Областной ' },
-    {value:'Республиканский ' },
-    {value:'Международный ' },
-]
-
-export const familyStatusList = [
-    {value:'Женат/замужем' },
-    {value:'В разводе ' },
-    {value:'Не женат/не замужем' },
-    {value:'Вдовец/вдова' },
-]
-
-export const scopeOfVisionList = [
-    {value:'Стратегическое (глобальное)' },
-    {value:'Тактическое' },
-    {value:'Узкоспециализированное' },
-]
-export const leadershipTypeList = [
-    {value:'Харизматический' },
-    {value:'Традиционный' },
-    {value:'Героический' },
-]
-export const militaryServiceList = [
-    {value:'Служил' },
-    {value:'Не служил' },
-    {value:'Военная кафедра' },
-    {value:'Участие в военных действиях' },
-]
+export const mainListCrieria =  reactive([
+    {
+        label: 'ФИО клиента',
+        key: 'main.fullName',
+    },
+    {
+        label: 'Должность',
+        key: 'main.position',
+    },
+   {
+    label: 'Пол',
+    key: 'main.gender',
+    list: [
+        { value: 'Мужской', label: 'Мужской' },
+        {value: 'Женский', label: 'Женский'},
+    ]
+   },
+   {
+    label: 'Национальность',
+    key: 'main.nationality',
+    list: [
+        {value:'Казах' },
+        {value:'Русский (славянин)' },
+        {value:'Татарин' },
+        {value:'Узбек' },
+        {value:'Кыргыз' },
+        {value:'Дунганин' },
+        {value:'Чеченец' },
+        {value:'Ингуш' },
+        {value:'Кореец' },
+        {value:'Армянин' },
+    ]
+   },
+   {
+    label: 'Образование',
+    key: 'main.education',
+    list: [
+        {value:'Западное ' },
+        {value:'Российское' },
+        {value:'Китайское' },
+        {value:'Исламские страны' },
+        {value:'Турецкое' },
+        {value:'Казахстанское' },
+        {value:'Азиатское' },
+    ]
+   },
+   {
+    label: 'Сфера деятельности',
+    key: 'main.fieldOfActivity',
+    list: [
+        {value:'Экономика, бизнес ' },
+        {value:'Культура, спорт' },
+        {value:'Наука, образование' },
+        {value:'Государство, общество' },
+    ]
+   },
+   {
+    label: 'Опыт работы',
+    key: 'main.experience',
+    list: [
+        {value:'Госслужба ' },
+        {value:'Квазигос' },
+        {value:'Частная организация' },
+        {value:'Международная/зарубежная' },
+    ]
+   },
+   {
+    label: 'Место рождения',
+    key: 'main.placeOfBirth',
+    list: [
+        {value:'Север ' },
+        {value:'Юг' },
+        {value:'Запад' },
+        {value:'Восток' },
+        {value:'Центр' },
+        {value:'Зарубеж' },
+    ]
+   },
+   {
+    label: 'Ученая степень',
+    key: 'sub.academicDegree',
+    list: [
+        {value:'Да ' },
+        {value:'Нет' },
+    ]
+   }, 
+   {
+    label: 'Уровень известности',
+    key: 'sub.fameLevel',
+    list: [
+        {value:'Общеизвестный ' },
+        {value:'Неизвестный' },
+        {value:'В своем кругу' },
+    ]
+   }, 
+   {
+    label: 'Уровень профессионализма',
+    key: 'sub.levelOfProfessionalism',
+    list: [
+        {value:'Международный  ' },
+        {value:'Национальный ' },
+        {value:'Региональный' },
+    ]
+   },
+   {
+    label: 'Репутация',
+    key: 'sub.reputation',
+    list: [
+        {value:'Безупречная  ' },
+        {value:'Скандальная/дискредитированная ' },
+    ]
+   },
+   {
+    label: 'Опыт руководителя',
+    key: 'sub.managersExperience',
+    list: [
+        {value:'Высшее звено  ' },
+        {value:'Среднее звено ' },
+        {value:'Низшее звено ' },
+    ]
+   }, 
+   {
+    label: 'Религиозные убеждения',
+    key: 'sub.religiousBeliefs',
+    list: [
+        {value:'Традиционные   ' },
+        {value:'Радикальные ' },
+        {value:'Светские ' },
+    ]
+   }, 
+   {
+    label: 'Уровень отмеченных достижений',
+    key: 'sub.levelOfNotedAchievements',
+    list: [
+        {value:'Городской/районный   ' },
+        {value:'Областной ' },
+        {value:'Республиканский ' },
+        {value:'Международный ' },
+    ]
+   }, 
+   {
+    label: 'Количество детей',
+    key: 'sub.amountOfChildren',
+   },
+   {
+    label: 'Масштаб видения',
+    key: 'sub.scopeOfVision',
+    list: [
+        {value:'Стратегическое (глобальное)' },
+        {value:'Тактическое' },
+        {value:'Узкоспециализированное' },
+    ]
+   },
+   {
+    label: 'Тип лидерства',
+    key: 'sub.leadershipType',
+    list: [
+        {value:'Харизматический' },
+        {value:'Традиционный' },
+        {value:'Героический' },
+    ]
+   },
+   {
+    label: 'Отношение к воинской служба',
+    key: 'sub.militaryService',
+    list: [
+        {value:'Служил' },
+        {value:'Не служил' },
+        {value:'Военная кафедра' },
+        {value:'Участие в военных действиях' },
+    ]
+   },
+])

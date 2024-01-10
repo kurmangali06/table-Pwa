@@ -7,6 +7,7 @@
         @change="selectedValue"
         notFoundContent="Ничего не найдено"
         >
+        <slot/>
         </a-select>
 </template>
 <script lang="ts" setup>
@@ -27,7 +28,7 @@ const props = defineProps({
 const emit= defineEmits(['modelValue:value'])
 const value = ref<string>('');
 
-function selectedValue(e :any) {
+function selectedValue(e :any) {    
     emit('modelValue:value', e)
 }
 

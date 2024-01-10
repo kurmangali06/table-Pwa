@@ -1,11 +1,11 @@
 <template>
-    <div class="dashboard">
+    <div class="dashboard" v-if="!loading">
         <apexchart
         :options="chartOptions"
         :series="percentage "
         type="pie"
       />
-      <div style="background: #ececec; padding: 30px">
+      <div style="background: #ececec; padding: 30px; border-radius: 12px;">
         <a-row :gutter="16">
           <a-col :span="12">
             <a-card  v-if="totalPercentagesList && totalPercentagesList.mainFilledPercents">
@@ -36,23 +36,31 @@
         </a-row>
       </div>
     </div>
+    <a-space v-else class="spin">
+      <a-spin size="small" />
+      <a-spin />
+      <a-spin size="large" />
+    </a-space>
 </template>
 <script lang="ts" setup>
 import type { IFormState, IPercentages } from '~/interface';
 import { getAllDataFromIndexedDB } from '~/service/IndexedDBService';
-import { fieldOfActivityList } from '~/service/helper';
+import { fieldOfActivityList, mainListCrieria } from '~/service/helper';
 import type { ApexOptions } from 'apexcharts';
 import { calculateAverage, calculateFilledPercentage } from '~/service/statictis';
 const percentages = ref<IPercentages[]>([])
 const totalPercentagesList = ref()
+const loading = ref(false)
 
 function getAnaliticList() {
+  loading.value = true
     const resPromise =  getAllDataFromIndexedDB()
     resPromise.then((res) => {
         let total = res.length;
         totalPercentagesList.value = calculateFilledPercentage(res)
-        
-        let counts = fieldOfActivityList.map(element => {
+        const findElement = mainListCrieria.find(e => e.label === 'Сфера деятельности')        
+        if(findElement && findElement.list) {
+          let counts = findElement.list.map(element => {
             let count = res.filter(item => item.main.fieldOfActivity === element.value).length;
             return { ...element, count };
           }).map(({ value, count }) => {
@@ -60,9 +68,14 @@ function getAnaliticList() {
             return { value, percentage };
           });;
         percentages.value = counts
+        }
+
+     
     }).catch((error) => {
       console.log(error, 'error');
       
+    }).finally(() => {
+        loading.value = false
     });
 
   }
@@ -99,5 +112,10 @@ onMounted(() => {
     .dashboard {
         width: 500px;
         margin: 0 auto;
+    }
+    .spin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 </style>

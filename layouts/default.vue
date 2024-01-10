@@ -1,5 +1,5 @@
 <template >
-    <div class="container">
+    <div class="container" id="main_container">
         <div class="sidebar">
             <div style="width: 256px">
                 <a-button type="primary" style="margin-bottom: 16px" @click="toggleCollapsed">

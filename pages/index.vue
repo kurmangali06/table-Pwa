@@ -1,5 +1,6 @@
 <template >
-    <div >
+    <div  v-if="!loading">
+
       <a-card class="title">
         <a-input-search
         v-model:value="search"
@@ -7,12 +8,14 @@
         enter-button
         allow-clear
         @search="onSearch"
+
       />
       <div style="height: 10px;"></div>
         <a-button type="default"  @click="openModal">Создать</a-button>
       </a-card>
       <div class="table">
-        <a-table  :dataSource="list" :columns="columnsTitle" bordered  >
+        <a-table 
+         :dataSource="list" :columns="columnsTitle"  :scrollToFirstRowOnChange="true" :scroll="{x :100}"    :pagination="{ pageSize: 50 }"	  >
           <template #emptyText>Данных нет</template>
        
           <template #bodyCell="{ column, text , record}">
@@ -90,8 +93,14 @@
           </a-row>
       </div>
     </div>
-    <a-button type="dashed" @click="clearDate" html-type="submit">Clear</a-button>
-    <addDate v-model:open="showModal"  :info="currentItem"/>
+
+    <a-space v-else class="spin">
+      <a-spin size="small" />
+      <a-spin />
+      <a-spin size="large" />
+    </a-space>
+    <a-button type="dashed" @click="clearDate">Clear</a-button>
+    <addDate v-if="showModal" v-model:open="showModal"  :info="currentItem"/>
 </template>
 
 
@@ -102,7 +111,7 @@ import addDate from '~/components/modal/addDate.vue';
 import {type IFormState} from '@/interface/index'
 import {  columnsTitle } from '~/service/table';
 
-
+const loading = ref(false)
 const list = ref<IFormState[]>([])
 const showModal = ref<boolean>(false);
 const search = ref<string>('')
@@ -110,6 +119,7 @@ const currentItem = ref()
 const count = ref(0)
 
 function getDate() {
+  loading.value = true
   const resPromise = getAllDataFromIndexedDB()
   const resCount = arrayLength()
   resPromise.then((res) => {
@@ -125,6 +135,8 @@ function getDate() {
   })
 }).catch((error) => {
   console.error('Error:', error);
+}).finally(() => {
+  loading.value = false
 });
 }
 
@@ -139,7 +151,6 @@ function openModal() {
   showModal.value = true;
 }
 function editModal(value: any) {
-  currentItem.value = null
   currentItem.value = value
   showModal.value = true;
 
@@ -165,15 +176,17 @@ onMounted(() => {
 
 <style lang="css" scoped>
 
-.table {
-  width: 100%;
-  overflow-y: auto;
-}
+
 .title {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   gap: 10px;
+}
+.spin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

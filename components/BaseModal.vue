@@ -1,10 +1,13 @@
 <template>
-    <div >
-        <a-modal :width="width"  v-bind="$attrs" @cancel="closeModal">
+    <Teleport to="#main_container">
+        <a-modal  :width="width"  v-bind="$attrs" @cancel="closeModal">
          <slot/>
-         <template #footer></template>
+         <template #footer>
+            <slot name="footer">
+            </slot>
+         </template>
         </a-modal>
-      </div>
+     </Teleport>
 </template>
 <script setup lang="ts">
 const emit = defineEmits(['update:open', 'hide'])
@@ -20,6 +23,6 @@ function closeModal() {
 }
 
 </script>
-<style lang="">
-    
+<style >
+
 </style>

@@ -1,3 +1,5 @@
+import type { RulesRefType } from "~/interface";
+
 export const columnsTitle = [
     {
       title: 'ФИО',
@@ -81,7 +83,7 @@ export const columnsTitle = [
     },
 ];
 
-export const rulesRef = reactive({
+export const rulesRef: RulesRefType = {
     fullName: [
       {
         required: true,
@@ -140,4 +142,4 @@ export const rulesRef = reactive({
             message: 'Пожалуйста, выберите из списка!'
           }, 
     ]
-  });
+  };

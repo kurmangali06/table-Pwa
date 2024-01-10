@@ -37,6 +37,10 @@ export default defineNuxtConfig({
     devOptions: {
       enabled: true,
     },
+    client: {
+      installPrompt: true,
+    },
+    
   },
   routeRules: {
     // Static generation
