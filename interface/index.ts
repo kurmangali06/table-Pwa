@@ -23,7 +23,8 @@ export interface ISubInfo {
   leadershipType: string
   militaryService: string
   [key: string]: any
-}
+} 
+export type KeysOfMainIMainInfo = keyof IMainInfo
 export interface IFormState {
     main: IMainInfo
     id: string

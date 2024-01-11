@@ -142,4 +142,4 @@ export const rulesRef: RulesRefType = {
             message: 'Пожалуйста, выберите из списка!'
           }, 
     ]
-  };
+};

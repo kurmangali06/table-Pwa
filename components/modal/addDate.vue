@@ -11,7 +11,7 @@
                         <a-form-item
                             :label="item.label"
                             :rules="rulesRef[checkKey(item.key, 'main')]"
-                        >
+                             >
                             <BaseSelect v-if="item.list" v-model:value="formState.main[checkKey(item.key, 'main')]" :options-list="item.list" placeholder="" />
                             <a-input v-else v-model:value="formState.main[checkKey(item.key, 'main')]"  />
                             <span v-if="errorMessages(checkKey(item.key, 'main'))"  style="color: red;">{{errorMessages(checkKey(item.key, 'main')) }}</span> 
@@ -19,16 +19,20 @@
                       
                 </template>
 
-                <a-divider dashed  plain orientation="left"><a-typography-title :level="5">Дополнительная информация</a-typography-title></a-divider>
-                <template v-for="(item, index) in subCriteria" :key="index">
-                        <a-form-item
-                        :label="item.label"
-                        >
-                        <BaseSelect v-if="item.list" v-model:value="formState.sub[checkKey(item.key, 'sub')]" :options-list="item.list"  />
-                        <a-input v-else v-model:value="formState.sub[checkKey(item.key, 'sub')]"  />
-                    </a-form-item>                 
-                </template>
-                    <a-form-item :wrapper-col="{ offset:4, span: 24 }">
+                <a-collapse v-model:activeKey="activeKey" collapsible="header">
+                    <a-collapse-panel key="1"  header="Дополнительная информация">
+                        <template v-for="(item, index) in subCriteria" :key="index">
+                            <a-form-item
+                            :label="item.label"
+                            >
+                            <BaseSelect v-if="item.list" v-model:value="formState.sub[checkKey(item.key, 'sub')]" :options-list="item.list"  />
+                            <a-input v-else v-model:value="formState.sub[checkKey(item.key, 'sub')]"  />
+                        </a-form-item>                 
+                    </template>
+                    </a-collapse-panel>
+                  </a-collapse>
+
+                    <a-form-item :wrapper-col="{ offset:8, span: 24 }" style="margin-top: 10px;">
                         <a-button type="primary" @click="openModal"  class="btn">Изменить критерии</a-button>
                         <a-button type="default" @click="onSubmit" class="btn">{{titleBtn}}</a-button>
                         <a-button type="default"  class="btn" @click="hide">Отмена</a-button>
@@ -41,32 +45,21 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { addDataToIndexedDB, updateDataInIndexedDB } from '@/service/IndexedDBService'
-import {  getRandomId, mainListCrieria } from '@/service/helper';
+import {  checkKey, getRandomId, mainListCrieria } from '@/service/helper';
 import {type IFormState, type IListCrieria} from '@/interface/index'
 import { Form } from 'ant-design-vue';
 import { rulesRef, columnsTitle } from '@/service/table';
 import { message } from 'ant-design-vue';
+import type { PropType } from 'vue';
 
 const props = defineProps({
     info: {
         type: Object as PropType<IFormState>,
         default: () => (null),            
-    }
+    },
 })
-function checkKey(e: string, actions: 'main' | 'sub'): string {
-    if(actions === 'main') {
-        const list  = e.split('.')
-        if(list[0] === 'main')
-        return list[1]
-    return ''
-    } else {
-        const list  = e.split('.')
-        if(list[0] === 'sub')
-        return list[1]
-    return ''
-    }
- 
-}
+const emit = defineEmits(['update:open'])
+
 const errList = ref<any[]>([])
 const errorMessages = computed(() => {
     return(err: string)  => {
@@ -108,14 +101,14 @@ sub: {
 const mainCriteria  = ref<IListCrieria[]>([])
 const subCriteria  = ref<IListCrieria[]>([])
 const criteriaShow = ref(false)
-const activeKey = ref(['1']);
+const activeKey = ref(['0']);
 const titleModal = computed(() => {
    return  props.info ? 'Редактирование данных' : 'Добавление данных' 
 })
 const titleBtn = computed(() => {
     return  props.info ? 'Изменить' : 'Cохранить' 
 })
-const emit = defineEmits(['update:open'])
+
 const { resetFields, validate, validateInfos,  } = useForm(formState.main, rulesRef, {
     deep:true,
     immediate:true
@@ -151,8 +144,6 @@ function hide() {
     emit('update:open', false);
     resetFields()
     activeKey.value = ['0']
-    mainCriteria.value = []
-    subCriteria.value = []
 }
 function openModal() {
     criteriaShow.value = true
@@ -191,9 +182,7 @@ onBeforeMount(() => {
         fetchProps()
     }
     mainCriteria.value = mainListCrieria.filter(item => item.key.startsWith('main.'));
-    subCriteria.value = mainListCrieria.filter(item => item.key.startsWith('sub.'));
-    console.log(formState);
-    
+    subCriteria.value = mainListCrieria.filter(item => item.key.startsWith('sub.')); 
 })
 </script>
 <style lang="css" scoped>

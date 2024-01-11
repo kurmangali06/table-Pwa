@@ -12,12 +12,31 @@
       />
       <div style="height: 10px;"></div>
         <a-button type="default"  @click="openModal">Создать</a-button>
+        <a-button type="default" style="margin-left: 10px;" @click="openSearhModal">Поиск по критериям</a-button>
+      </a-card>
+      <a-card>
+        <div>
+          <a-tag closable @close="handleClose(item[1])" v-for="(item, index) in searchParamsMain" :key="index">{{ translateName(item[0]) }}:  {{ item[1] }}</a-tag>
+
+        </div>
       </a-card>
       <div class="table">
         <a-table 
-         :dataSource="list" :columns="columnsTitle"  :scrollToFirstRowOnChange="true" :scroll="{x :100}"    :pagination="{ pageSize: 50 }"	  >
-          <template #emptyText>Данных нет</template>
-       
+         :dataSource="list" :columns="columnsTitle"  :scrollToFirstRowOnChange="true" :scroll="{x :100}"    :pagination="{ pageSize: 10, position:['bottomCenter'] }"	  >
+          <template #emptyText>
+            <a-empty description="Данных нет" />
+          </template>
+          <template #footer>
+            <a-row>
+              <a-col :span="12" >
+                <a-statistic title="Итого" :value="count" >
+                  <template #suffix>
+                    человек
+                  </template>
+                </a-statistic>
+              </a-col>
+              </a-row>
+          </template>
           <template #bodyCell="{ column, text , record}">
             
             <template v-if="column.dataIndex === 'mainName'">
@@ -82,15 +101,7 @@
              </template>
           </template>
         </a-table>
-        <a-row>
-          <a-col :span="24">
-            <a-statistic title="Итого" :value="count" >
-              <template #suffix>
-                человек
-              </template>
-            </a-statistic>
-          </a-col>
-          </a-row>
+ 
       </div>
     </div>
 
@@ -101,6 +112,7 @@
     </a-space>
     <a-button type="dashed" @click="clearDate">Clear</a-button>
     <addDate v-if="showModal" v-model:open="showModal"  :info="currentItem"/>
+    <ModalGlobalSearch v-if="showSearch" v-model:open="showSearch" @criteria-params="getParams" />
 </template>
 
 
@@ -110,6 +122,7 @@ import { ref, onMounted } from 'vue';
 import addDate from '~/components/modal/addDate.vue';
 import {type IFormState} from '@/interface/index'
 import {  columnsTitle } from '~/service/table';
+import { translateName } from '~/service/helper';
 
 const loading = ref(false)
 const list = ref<IFormState[]>([])
@@ -117,6 +130,8 @@ const showModal = ref<boolean>(false);
 const search = ref<string>('')
 const currentItem = ref()
 const count = ref(0)
+const showSearch = ref(false)
+const searchParamsMain = ref<string[][]>([])
 
 function getDate() {
   loading.value = true
@@ -155,7 +170,23 @@ function editModal(value: any) {
   showModal.value = true;
 
 }
+function openSearhModal() {
+  showSearch.value = true
+}
 
+function getParams(e: IFormState) {
+  let mainParams: string[][] = []
+  let subParams: string[][] = []
+  if('main' in e)
+     mainParams = Object.entries(e.main).filter(e => e[1] !== '');
+  if('sub' in e)
+    subParams = Object.entries(e.sub).filter(e => e[1] !== '' && e[1] !== 0)
+  searchParamsMain.value = [...mainParams, ...subParams]
+}
+
+function handleClose(removedTag: string) {
+    searchParamsMain.value =  searchParamsMain.value.filter(e => e[1] !== removedTag)
+}
 function onSearch(searchValue: string) {
   if(!searchValue)
    getDate()
@@ -164,11 +195,28 @@ function onSearch(searchValue: string) {
 }
 
 
+
 watch(() => showModal.value, () => {
   if(showModal.value === false)
-  getDate()
+    getDate()
 })
 
+watch(() => searchParamsMain.value, () => {
+  if(!searchParamsMain.value.length)
+    getDate()
+  filterData(searchParamsMain.value)
+})
+
+async function filterData(main: string[][]) {    
+  list.value = list.value.filter(item => {
+        // Проверяем соответствие критериям в объекте main
+        const isMainCriteriaMatch = main.every(([key, value]) => {
+            return value === "" || item.main[key] === value || item.sub[key] === value;
+        });
+        return isMainCriteriaMatch 
+    });
+  
+}
 onMounted(() => {
   getDate()
 })

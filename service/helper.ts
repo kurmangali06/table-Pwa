@@ -1,7 +1,64 @@
+import type { IMainInfo, KeysOfMainIMainInfo } from "~/interface";
+
 export function getRandomId() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 } 
+export function checkKey(e: string, actions: 'main' | 'sub'): string {
+    if(actions === 'main') {
+        const list  = e.split('.')
+        if(list[0] === 'main')
+        return list[1]
+    return ''
+    } else {
+        const list  = e.split('.')
+        if(list[0] === 'sub')
+        return list[1]
+    return ''
+    }
+ 
+}
 
+export function translateName(name: KeysOfMainIMainInfo): string {
+
+        switch (name) {
+            case 'gender': 
+             return 'Пол';
+            case 'nationality': 
+             return 'Национальность';
+            case 'education': 
+             return 'Образование';
+            case 'fieldOfActivity': 
+             return 'Сфера деятельности';
+            case 'experience': 
+             return 'Опыт работы';
+            case 'placeOfBirth': 
+             return 'Место рождения';
+             case 'academicDegree': 
+             return 'Ученая степен';
+            case 'fameLevel': 
+             return 'Уровень известности';
+            case 'levelOfProfessionalism': 
+             return 'Уровень профессионализма';
+            case 'reputation': 
+             return 'Репутация';
+            case 'managersExperience': 
+             return 'Опыт руководителя';
+            case 'religiousBeliefs': 
+             return 'Религиозные убеждения';
+            case 'levelOfNotedAchievements': 
+             return 'Уровень отмеченных достижений';
+            case 'scopeOfVision': 
+             return 'Масштаб видения';
+            case 'leadershipType': 
+             return 'Тип лидерства';
+            case 'militaryService': 
+             return 'Отношение к воинской служба';
+            default: 
+             return ''
+        }
+
+
+}
 export const fieldOfActivityList = [
     {value:'Экономика, бизнес ' },
     {value:'Культура, спорт' },
