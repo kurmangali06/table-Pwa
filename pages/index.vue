@@ -1,5 +1,5 @@
 <template >
-    <div  v-if="!loading">
+    <div >
 
       <a-card class="title">
         <a-input-search
@@ -13,6 +13,7 @@
       <div style="height: 10px;"></div>
         <a-button type="default"  @click="openModal">Создать</a-button>
         <a-button type="default" style="margin-left: 10px;" @click="openSearhModal">Поиск по критериям</a-button>
+        <a-button type="primary"  style="margin-left: 10px;" @click="exportToExcel">Скачать в excell</a-button>
       </a-card>
       <a-card>
         <div>
@@ -20,7 +21,7 @@
 
         </div>
       </a-card>
-      <div class="table">
+      <div class="table" v-if="!loading">
         <a-table 
          :dataSource="list" :columns="columnsTitle"  :scrollToFirstRowOnChange="true" :scroll="{x :100}"    :pagination="{ pageSize: 10, position:['bottomCenter'] }"	  >
           <template #emptyText>
@@ -39,7 +40,7 @@
           </template>
           <template #bodyCell="{ column, text , record}">
             
-            <template v-if="column.dataIndex === 'mainName'">
+            <template v-if="column.dataIndex === 'fullName'">
               <NuxtLink @click="editModal(record)">{{ record.main.fullName }}</NuxtLink>
             </template>
             <template v-else-if="column.dataIndex === 'position'">
@@ -103,13 +104,14 @@
         </a-table>
  
       </div>
+      <a-space v-else class="spin">
+        <a-spin size="small" />
+        <a-spin />
+        <a-spin size="large" />
+      </a-space>
     </div>
 
-    <a-space v-else class="spin">
-      <a-spin size="small" />
-      <a-spin />
-      <a-spin size="large" />
-    </a-space>
+
     <a-button type="dashed" @click="clearDate">Clear</a-button>
     <addDate v-if="showModal" v-model:open="showModal"  :info="currentItem"/>
     <ModalGlobalSearch v-if="showSearch" v-model:open="showSearch" @criteria-params="getParams" />
@@ -123,6 +125,7 @@ import addDate from '~/components/modal/addDate.vue';
 import {type IFormState} from '@/interface/index'
 import {  columnsTitle } from '~/service/table';
 import { translateName } from '~/service/helper';
+import { Excel } from "antd-table-saveas-excel";
 
 const loading = ref(false)
 const list = ref<IFormState[]>([])
@@ -133,9 +136,9 @@ const count = ref(0)
 const showSearch = ref(false)
 const searchParamsMain = ref<string[][]>([])
 
-function getDate() {
+function getDate(filterData?: any) {
   loading.value = true
-  const resPromise = getAllDataFromIndexedDB()
+  const resPromise = getAllDataFromIndexedDB(filterData)
   const resCount = arrayLength()
   resPromise.then((res) => {
     list.value = res.map((e: IFormState) => {
@@ -159,7 +162,22 @@ async function clearDate() {
   await clearIndexedDB()
   getDate()
 }
-
+function exportToExcel() {
+  const excelList = list.value.map(e => {
+    return {
+      ...e.main,
+      ...e.sub
+    }
+  })
+    const excel = new Excel();
+          excel
+            .addSheet("test")
+            .addColumns(columnsTitle)
+            .addDataSource(excelList, {
+              str2Percent: true
+            })
+            .saveAs("Excel.xlsx");
+}
 
 function openModal() {
   currentItem.value = null
@@ -208,13 +226,13 @@ watch(() => searchParamsMain.value, () => {
 })
 
 async function filterData(main: string[][]) {    
-  list.value = list.value.filter(item => {
-        // Проверяем соответствие критериям в объекте main
-        const isMainCriteriaMatch = main.every(([key, value]) => {
-            return value === "" || item.main[key] === value || item.sub[key] === value;
-        });
-        return isMainCriteriaMatch 
-    });
+  const filterParam = main.reduce((acc, item) => {
+    return {
+      ...acc,
+      [item[0]]: item[1]
+    }
+  }, {})
+  getDate(filterParam)
   
 }
 onMounted(() => {

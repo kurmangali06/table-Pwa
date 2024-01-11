@@ -34,16 +34,29 @@ export const addDataToIndexedDB = async (data: IFormState): Promise<number> => {
   }
 };
 
-export const getAllDataFromIndexedDB = async (): Promise<IFormState[]> => {
+
+
+export const getAllDataFromIndexedDB = async (filterCriteria = null): Promise<IFormState[]> => {
   try {
-    const result = await db.myObjectStore.toArray();
+    let result;
+    if (filterCriteria) {
+      result = await db.myObjectStore
+        .filter(item => {          
+          return Object.keys(filterCriteria).every(key => {
+            return item.main[key] === filterCriteria[key] || item.sub[key] === filterCriteria[key];
+          });
+        })
+        .toArray();
+    } else {
+      // Если критерии фильтрации отсутствуют, получаем все данные
+      result = await db.myObjectStore.toArray();
+    }
     return result;
   } catch (error) {
     console.error('Error retrieving data from the store', error);
     throw error;
   }
 };
-
 export const clearIndexedDB = async (): Promise<void> => {
   try {
     await db.myObjectStore.clear();

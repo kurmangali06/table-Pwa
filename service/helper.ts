@@ -18,7 +18,7 @@ export function checkKey(e: string, actions: 'main' | 'sub'): string {
  
 }
 
-export function translateName(name: KeysOfMainIMainInfo): string {
+export function translateName<T extends KeysOfMainIMainInfo>(name: T): string {
 
         switch (name) {
             case 'gender': 

@@ -3,7 +3,7 @@ import type { RulesRefType } from "~/interface";
 export const columnsTitle = [
     {
       title: 'ФИО',
-      dataIndex: 'mainName',
+      dataIndex: 'fullName',
     },
     {
       title: 'Должность',
