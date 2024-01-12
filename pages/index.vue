@@ -27,8 +27,9 @@
           <a-table 
             :dataSource="list" :columns="columnsTitle"  
             :scrollToFirstRowOnChange="true" 
-            :scroll="{x :100}"    
-            :pagination="{ pageSize: 10, position:['bottomCenter'] }" >
+            :scroll="{x :100}"   
+            @change="changePage"
+            :pagination="{ pageSize: pageSize, position:['bottomCenter'], pageSizeOptions: ['10', '20', '50', '100'] }" >
             <template #emptyText>
               <a-empty description="Данных нет" />
             </template>
@@ -145,7 +146,7 @@ const currentItem = ref()
 const count = ref(0)
 const showSearch = ref(false)
 const searchParamsMain = ref<string[][]>([])
-const fileList = ref([])
+const pageSize = ref(10)
 function getDate(filterData?: any) {
   loading.value = true
   const resPromise = getAllDataFromIndexedDB(filterData)
@@ -252,6 +253,10 @@ function getParams(e: IFormState) {
   searchParamsMain.value = [...mainParams, ...subParams]
 }
 
+function changePage(e:any) {
+  console.log(e);
+  pageSize.value = e.pageSize
+}
 function handleClose(removedTag: string) {
     searchParamsMain.value =  searchParamsMain.value.filter(e => e[1] !== removedTag)
 }
