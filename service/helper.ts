@@ -104,7 +104,7 @@ export function transformExcellToArray(list: any[]): IFormState[] {
     const res =  list.map(e => {
        const editElement =  Object.entries(e).map(t => {
             return {
-                [translateRuByEn(t[0])]: t[1]
+                [translateRuByEn(t[0].trim())]: t[1]
             }
         })
         const res =  editElement.reduce((acc, item) => {
@@ -150,8 +150,8 @@ export const mainListCrieria =  reactive([
     label: 'Пол',
     key: 'main.gender',
     list: [
-        { value: 'Мужской', label: 'Мужской' },
-        {value: 'Женский', label: 'Женский'},
+        { value: 'М', label: 'М' },
+        {value: 'Ж', label: 'Ж'},
     ]
    },
    {
@@ -187,10 +187,10 @@ export const mainListCrieria =  reactive([
     label: 'Сфера деятельности',
     key: 'main.fieldOfActivity',
     list: [
-        {value:'Экономика, бизнес ' },
-        {value:'Культура, спорт' },
-        {value:'Наука, образование' },
-        {value:'Государство, общество' },
+        {value:'Экономика/бизнес' },
+        {value:'Культура/спорт' },
+        {value:'Наука/образование' },
+        {value:'Государство/общество' },
     ]
    },
    {

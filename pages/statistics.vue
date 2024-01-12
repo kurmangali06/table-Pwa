@@ -57,13 +57,13 @@ function getAnaliticList() {
     const resPromise =  getAllDataFromIndexedDB()
     resPromise.then((res) => {
         let total = res.length;
-        totalPercentagesList.value = calculateFilledPercentage(res)
-        const findElement = mainListCrieria.find(e => e.label === 'Сфера деятельности')        
+        totalPercentagesList.value = calculateFilledPercentage(res)        
+        const findElement = mainListCrieria.find(e => e.label.trim() === 'Сфера деятельности'.trim())        
         if(findElement && findElement.list) {
           let counts = findElement.list.map(element => {
             let count = res.filter(item => item.main.fieldOfActivity === element.value).length;
             return { ...element, count };
-          }).map(({ value, count }) => {
+          }).map(({ value, count }) => {                      
             let percentage = (count / total) * 100;
             return { value, percentage };
           });;
@@ -79,6 +79,8 @@ function getAnaliticList() {
     });
 
   }
+
+  
 const percentage = computed(() => {
   return percentages.value.map((el: any) => Math.round(el.percentage));
 });

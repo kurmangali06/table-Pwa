@@ -49,7 +49,7 @@
                 <NuxtLink @click="editModal(record)">{{ record.main.fullName }}</NuxtLink>
               </template>
               <template v-else-if="column.dataIndex === 'position'">
-              {{ record.main.position }}
+              <div style="width: 300px;">{{ record.main.position }}</div>
               </template>
               <template v-else-if="column.dataIndex === 'gender'">
                 {{ record.main.gender }}
@@ -170,6 +170,7 @@ function getDate(filterData?: any) {
 
 async function clearDate() {
   await clearIndexedDB()
+  count.value = 0
   getDate()
 }
 function exportToExcel() {
@@ -188,10 +189,7 @@ function exportToExcel() {
             })
             .saveAs("Excel.xlsx");
 }
-function handleFi(e:any) {
-  console.log(e);
-  
-}
+
 function openModal() {
   currentItem.value = null
   showModal.value = true;
@@ -219,7 +217,8 @@ const handleFile = (event: Event) => {
 
     // Преобразование листа в массив объектов
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
+    console.log(jsonData);
+    
     const res =  transformExcellToArray(jsonData)
 
     const list =  res.map(t =>  checkKeyFormObject(t))
