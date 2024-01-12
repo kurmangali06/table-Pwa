@@ -1,4 +1,4 @@
-import type { IMainInfo, KeysOfMainIMainInfo } from "~/interface";
+import type { IFormState, IMainInfo, ISubInfo, KeysOfMainIMainInfo } from "~/interface";
 
 export function getRandomId() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -19,7 +19,6 @@ export function checkKey(e: string, actions: 'main' | 'sub'): string {
 }
 
 export function translateName<T extends KeysOfMainIMainInfo>(name: T): string {
-
         switch (name) {
             case 'gender': 
              return 'Пол';
@@ -56,7 +55,80 @@ export function translateName<T extends KeysOfMainIMainInfo>(name: T): string {
             default: 
              return ''
         }
-
+}
+export function translateRuByEn(name: string): string {
+    switch (name) {
+        case 'Пол': 
+         return 'gender';
+        case 'Национальность': 
+         return 'nationality';
+        case 'Образование': 
+         return 'education';
+        case 'Сфера деятельности': 
+         return 'fieldOfActivity';
+        case 'Опыт работы': 
+         return 'experience';
+        case 'Место рождения': 
+         return 'placeOfBirth';
+         case 'Ученая степень': 
+         return 'academicDegree';
+        case 'Уровень известности': 
+         return 'fameLevel';
+        case 'Уровень профессионализма': 
+         return 'levelOfProfessionalism';
+        case 'Репутация': 
+         return 'reputation';
+        case 'Опыт руководителя': 
+         return 'managersExperience';
+        case 'Религиозные убеждения': 
+         return 'religiousBeliefs';
+        case 'Уровень отмеченных достижений': 
+         return 'levelOfNotedAchievements';
+        case 'Масштаб видения': 
+         return 'scopeOfVision ';
+        case 'Тип лидерства': 
+         return 'leadershipType';
+        case 'Отношение к воинской служба': 
+         return 'militaryService';
+        case 'ФИО': 
+         return 'fullName';
+        case 'Должность': 
+         return 'position';
+        case 'Количество детей': 
+         return 'amountOfChildren';
+        default:
+            return '';
+    }
+}
+export function transformExcellToArray(list: any[]): IFormState[] {
+    const res =  list.map(e => {
+       const editElement =  Object.entries(e).map(t => {
+            return {
+                [translateRuByEn(t[0])]: t[1]
+            }
+        })
+        const res =  editElement.reduce((acc, item) => {
+           return {
+            ...acc,
+            ...item,
+           }
+        }, {})  
+    return res   
+    })
+    return res as IFormState[] 
+}
+const mainInfoKeys = ['fullName', 'position', 'gender', 'nationality', 'education', 'fieldOfActivity', 'experience', 'placeOfBirth'];
+const subInfoKeys = ['academicDegree', 'fameLevel', 'levelOfProfessionalism', 'reputation', 'managersExperience', 'religiousBeliefs', 'levelOfNotedAchievements', 'familyStatus', 'amountOfChildren', 'scopeOfVision', 'leadershipType', 'militaryService'];
+export function checkKeyFormObject(obj: any ): IFormState  {  
+    const res =  Object.entries(obj).reduce(({ main, sub }: any, [key, value]) => {
+      if (mainInfoKeys.includes(key)) {
+        main[key] = value;
+      } else if (subInfoKeys.includes(key)) {
+        sub[key] = value;
+      }
+      return { main, sub };
+    }, { main: {} as IMainInfo, sub: {} as ISubInfo });    
+    return res as unknown as IFormState
 
 }
 export const fieldOfActivityList = [

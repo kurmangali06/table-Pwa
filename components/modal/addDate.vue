@@ -1,6 +1,11 @@
 <template>
-    <BaseModal v-bind="$attrs" :width="1000" :title="titleModal" @hide="hide" >
-        <a-form 
+    <BaseModal v-bind="$attrs" :width="1000"  @hide="hide" >
+        <template #header>
+            <a-divider dashed  plain orientation="left"><a-typography-title :level="4">{{ titleModal }}</a-typography-title></a-divider>
+        
+        </template>
+        <template #content>
+            <a-form 
             :model="formState"
             name="dynamic_rule"
             :label-col="{ span: 8}"
@@ -32,15 +37,19 @@
                     </a-collapse-panel>
                   </a-collapse>
 
-                    <a-form-item :wrapper-col="{ offset:8, span: 24 }" style="margin-top: 10px;">
-                        <a-button type="primary" @click="openModal"  class="btn">Изменить критерии</a-button>
-                        <a-button type="default" @click="onSubmit" class="btn">{{titleBtn}}</a-button>
-                        <a-button type="default"  class="btn" @click="hide">Отмена</a-button>
-                        <a-button type="primary" >Перенести в архив</a-button>
-                     </a-form-item>  
+                
             </a-form>
-        <ModalAddCriteria  v-model:open="criteriaShow" />
+        </template>
+          <template #footer>
+            <a-form-item :wrapper-col="{ offset:8, span: 24 }" style="margin-top: 10px;">
+                <a-button type="primary" @click="openModal"  class="btn">Изменить критерии</a-button>
+                <a-button type="default" @click="onSubmit" class="btn">{{titleBtn}}</a-button>
+                <a-button type="default"  class="btn" @click="hide">Отмена</a-button>
+                <a-button type="primary" >Перенести в архив</a-button>
+             </a-form-item>  
+          </template>
     </BaseModal>
+    <ModalAddCriteria  v-model:open="criteriaShow" />
 </template>
 <script setup lang="ts">
 import { computed } from 'vue';
@@ -70,32 +79,32 @@ const errorMessages = computed(() => {
 })
 const useForm = Form.useForm;
 const formState = reactive<IFormState>({
-main: {
-    fullName: '',
-    position: '',
-    gender: '',
-    nationality: '',
-    education: '',
-    fieldOfActivity: '',
-    experience: '',
-    placeOfBirth: ''
-},
-id: '',
-sub: {
-    academicDegree: '',
-    fameLevel: '',
-    levelOfProfessionalism: '',
-    reputation: '',
-    managersExperience: '',
-    religiousBeliefs: '',
-    levelOfNotedAchievements: '',
-    familyStatus: '',
-    amountOfChildren: 0,
-    scopeOfVision: '',
-    leadershipType: '',
-    militaryService: ''
-},
-
+    main: {
+        fullName: '',
+        position: '',
+        gender: '',
+        nationality: '',
+        education: '',
+        fieldOfActivity: '',
+        experience: '',
+        placeOfBirth: ''
+    },
+    id: '',
+    sub: {
+        academicDegree: '',
+        fameLevel: '',
+        levelOfProfessionalism: '',
+        reputation: '',
+        managersExperience: '',
+        religiousBeliefs: '',
+        levelOfNotedAchievements: '',
+        familyStatus: '',
+        amountOfChildren: 0,
+        scopeOfVision: '',
+        leadershipType: '',
+        militaryService: ''
+    },
+    status: 'active'
 })
 
 const mainCriteria  = ref<IListCrieria[]>([])
@@ -109,10 +118,7 @@ const titleBtn = computed(() => {
     return  props.info ? 'Изменить' : 'Cохранить' 
 })
 
-const { resetFields, validate, validateInfos,  } = useForm(formState.main, rulesRef, {
-    deep:true,
-    immediate:true
-});
+const { resetFields, validate,  } = useForm(formState.main, rulesRef);
 
 async function onSubmit(){
   const body = {

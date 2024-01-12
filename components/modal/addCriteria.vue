@@ -1,6 +1,7 @@
 <template>
     <BaseModal v-bind="$attrs" :width="500" title="Изменить критерии" @hide="hide" >
-        <a-form
+        <template #content>
+            <a-form
             :model="formState"
             name="basic"
             :label-col="{ span: 8}"
@@ -21,12 +22,13 @@
             <a-form-item
                 label="Выпадающий список"
                 >
-                <a-select v-model:value="formState.value" :options="subList" placeholder="выберите данные с первого списка" >
+                <a-select 
+                :disabled="!formState.name" v-model:value="formState.value" :options="subList" placeholder="выберите данные с первого списка" >
                     <template #dropdownRender="{ menuNode: subList }">
                         <v-nodes :vnodes="subList" />
                         <a-divider style="margin: 4px 0" />
                         <a-space style="padding: 4px 8px">
-                            <a-input  v-model:value="formState.newValue" placeholder="Please enter item" />
+                            <a-input  v-model:value="formState.newValue" placeholder="Пожалуйста, введите новый элемент списка" />
                             <a-button type="text" :disabled="!formState.newValue" @click="addItem">
                               <template #icon>
                                 <plus-outlined />
@@ -41,6 +43,8 @@
                 <a-button type="default" @click="hide" >Отмена</a-button>
             </a-form-item>   
         </a-form>
+        </template>
+
     </BaseModal>
 </template>
 <script setup lang="ts">

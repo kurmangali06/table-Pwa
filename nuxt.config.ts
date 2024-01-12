@@ -16,9 +16,9 @@ export default defineNuxtConfig({
     srcDir: './service-worker',
     filename: 'sw.ts',
     manifest: {
-      name: 'My Awesome App',
-      description: 'app',
-      short_name: 'NuxtVitePWA',
+      name: 'Leaders Tracker',
+      description: 'Leaders Tracker',
+      short_name: 'Leaders Tracker',
       lang: 'ru',
       id: '/',
       icons: [

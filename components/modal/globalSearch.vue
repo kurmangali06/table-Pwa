@@ -1,6 +1,7 @@
 <template >
     <BaseModal v-bind="$attrs" :width="1000" title="Поиск по критериям" @hide="hide" >
-        <a-form 
+        <template #content>
+            <a-form 
             :model="formState"
             name="dynamic_rule"
             :label-col="{ span: 8}"
@@ -34,12 +35,13 @@
                     <a-button type="default" @click="onSubmit" class="btn">Поиск</a-button>
                  </a-form-item>  
             </a-form>
+        </template>
     </BaseModal>
 </template>
 <script lang="ts" setup>
 import type { IListCrieria, IFormState } from '~/interface';
 import { checkKey, mainListCrieria } from '~/service/helper';
-import { AccountBookOutlined } from '@ant-design/icons-vue';
+
 
 const emit = defineEmits(['update:open', 'criteriaParams'])
 

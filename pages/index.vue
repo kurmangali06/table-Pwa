@@ -6,14 +6,16 @@
         v-model:value="search"
         placeholder="Поиск по ФИО"
         enter-button
+        :disabled="loading"
         allow-clear
         @search="onSearch"
 
       />
       <div style="height: 10px;"></div>
-        <a-button type="default"  @click="openModal">Создать</a-button>
-        <a-button type="default" style="margin-left: 10px;" @click="openSearhModal">Поиск по критериям</a-button>
-        <a-button type="primary"  style="margin-left: 10px;" @click="exportToExcel">Скачать в excell</a-button>
+        <a-button type="default"  :disabled="loading" @click="openModal">Создать</a-button>
+        <a-button type="default" :disabled="loading" style="margin-left: 10px;" @click="openSearhModal">Поиск по критериям</a-button>
+        <a-button type="primary"  :disabled="loading" style="margin-left: 10px;" @click="exportToExcel">Скачать в excell</a-button>
+        <a-input type="file" style="margin-top: 10px;" :accept="rulesByFile" @change="handleFile" />
       </a-card>
       <a-card>
         <div>
@@ -22,93 +24,100 @@
         </div>
       </a-card>
       <div class="table" v-if="!loading">
-        <a-table 
-         :dataSource="list" :columns="columnsTitle"  :scrollToFirstRowOnChange="true" :scroll="{x :100}"    :pagination="{ pageSize: 10, position:['bottomCenter'] }"	  >
-          <template #emptyText>
-            <a-empty description="Данных нет" />
-          </template>
-          <template #footer>
-            <a-row>
-              <a-col :span="12" >
-                <a-statistic title="Итого" :value="count" >
-                  <template #suffix>
-                    человек
-                  </template>
-                </a-statistic>
-              </a-col>
-              </a-row>
-          </template>
-          <template #bodyCell="{ column, text , record}">
-            
-            <template v-if="column.dataIndex === 'fullName'">
-              <NuxtLink @click="editModal(record)">{{ record.main.fullName }}</NuxtLink>
+          <a-table 
+            :dataSource="list" :columns="columnsTitle"  
+            :scrollToFirstRowOnChange="true" 
+            :scroll="{x :100}"    
+            :pagination="{ pageSize: 10, position:['bottomCenter'] }" >
+            <template #emptyText>
+              <a-empty description="Данных нет" />
             </template>
-            <template v-else-if="column.dataIndex === 'position'">
-             {{ record.main.position }}
+            <template #footer>
+              <a-row>
+                <a-col :span="24" >
+                  <a-statistic title="Итого" :value="count" >
+                    <template #suffix>
+                      человек
+                    </template>
+                  </a-statistic>
+                </a-col>
+                </a-row>
             </template>
-            <template v-else-if="column.dataIndex === 'gender'">
-              {{ record.main.gender }}
-             </template>
-             <template v-else-if="column.dataIndex === 'nationality'">
-              {{ record.main.nationality }}
-             </template>
-             <template v-else-if="column.dataIndex === 'education'">
-              {{ record.main.education }}
-             </template>
-             <template v-else-if="column.dataIndex === 'fieldOfActivity'">
-              {{ record.main.fieldOfActivity }}
-             </template>
-             <template v-else-if="column.dataIndex === 'experience'">
-              {{ record.main.experience }}
-             </template>
-             <template v-else-if="column.dataIndex === 'placeOfBirth'">
-              {{ record.main.placeOfBirth }}
-             </template>
-             <template v-else-if="column.dataIndex === 'academicDegree'">
-              {{ record.sub.academicDegree }}
-             </template>
-             <template v-else-if="column.dataIndex === 'fameLevel'">
-              {{ record.sub.fameLevel }}
-             </template>
-             <template v-else-if="column.dataIndex === 'levelOfProfessionalism'">
-              {{ record.sub.levelOfProfessionalism }}
-             </template>
-             <template v-else-if="column.dataIndex === 'reputation'">
-              {{ record.sub.reputation }}
-             </template>
-             <template v-else-if="column.dataIndex === 'managersExperience'">
-              {{ record.sub.managersExperience }}
-             </template>
-             <template v-else-if="column.dataIndex === 'religiousBeliefs'">
-              {{ record.sub.managersExperience }}
-             </template>
-             <template v-else-if="column.dataIndex === 'levelOfNotedAchievements'">
-              {{ record.sub.levelOfNotedAchievements }}
-             </template>
-             <template v-else-if="column.dataIndex === 'familyStatus'">
-              {{ record.sub.familyStatus }}
-             </template>
-             <template v-else-if="column.dataIndex === 'amountOfChildren'">
-              {{ record.sub.amountOfChildren }}
-             </template>
-             <template v-else-if="column.dataIndex === 'scopeOfVision'">
-              {{ record.sub.scopeOfVision }}
-             </template>
-             <template v-else-if="column.dataIndex === 'leadershipType'">
-              {{ record.sub.leadershipType }}
-             </template>
-             <template v-else-if="column.dataIndex === 'militaryService'">
-              {{ record.sub.militaryService }}
-             </template>
-          </template>
-        </a-table>
- 
+            <template #bodyCell="{ column, text , record}">
+              
+              <template v-if="column.dataIndex === 'fullName'">
+                <NuxtLink @click="editModal(record)">{{ record.main.fullName }}</NuxtLink>
+              </template>
+              <template v-else-if="column.dataIndex === 'position'">
+              {{ record.main.position }}
+              </template>
+              <template v-else-if="column.dataIndex === 'gender'">
+                {{ record.main.gender }}
+              </template>
+              <template v-else-if="column.dataIndex === 'nationality'">
+                {{ record.main.nationality }}
+              </template>
+              <template v-else-if="column.dataIndex === 'education'">
+                {{ record.main.education }}
+              </template>
+              <template v-else-if="column.dataIndex === 'fieldOfActivity'">
+                {{ record.main.fieldOfActivity }}
+              </template>
+              <template v-else-if="column.dataIndex === 'experience'">
+                {{ record.main.experience }}
+              </template>
+              <template v-else-if="column.dataIndex === 'placeOfBirth'">
+                {{ record.main.placeOfBirth }}
+              </template>
+              <template v-else-if="column.dataIndex === 'academicDegree'">
+                {{ record.sub.academicDegree }}
+              </template>
+              <template v-else-if="column.dataIndex === 'fameLevel'">
+                {{ record.sub.fameLevel }}
+              </template>
+              <template v-else-if="column.dataIndex === 'levelOfProfessionalism'">
+                {{ record.sub.levelOfProfessionalism }}
+              </template>
+              <template v-else-if="column.dataIndex === 'reputation'">
+                {{ record.sub.reputation }}
+              </template>
+              <template v-else-if="column.dataIndex === 'managersExperience'">
+                {{ record.sub.managersExperience }}
+              </template>
+              <template v-else-if="column.dataIndex === 'religiousBeliefs'">
+                {{ record.sub.managersExperience }}
+              </template>
+              <template v-else-if="column.dataIndex === 'levelOfNotedAchievements'">
+                {{ record.sub.levelOfNotedAchievements }}
+              </template>
+              <template v-else-if="column.dataIndex === 'familyStatus'">
+                {{ record.sub.familyStatus }}
+              </template>
+              <template v-else-if="column.dataIndex === 'amountOfChildren'">
+                {{ record.sub.amountOfChildren }}
+              </template>
+              <template v-else-if="column.dataIndex === 'scopeOfVision'">
+                {{ record.sub.scopeOfVision }}
+              </template>
+              <template v-else-if="column.dataIndex === 'leadershipType'">
+                {{ record.sub.leadershipType }}
+              </template>
+              <template v-else-if="column.dataIndex === 'militaryService'">
+                {{ record.sub.militaryService }}
+              </template>
+            </template>
+          </a-table>
       </div>
-      <a-space v-else class="spin">
-        <a-spin size="small" />
-        <a-spin />
-        <a-spin size="large" />
-      </a-space>
+      <div v-else class="loading">
+        <a-skeleton-button 
+          v-for="n in 10" 
+          :key="n" 
+          active 
+          :block="loading" 
+          :size=" n === 1 ? 'large' : 'small' " />
+      </div>
+      
+    
     </div>
 
 
@@ -119,13 +128,14 @@
 
 
 <script setup lang="ts">
-import {  getAllDataFromIndexedDB,clearIndexedDB, arrayLength } from '@/service/IndexedDBService'
+import {  getAllDataFromIndexedDB,clearIndexedDB, arrayLength, addDataToIndexedDB } from '@/service/IndexedDBService'
 import { ref, onMounted } from 'vue';
 import addDate from '~/components/modal/addDate.vue';
 import {type IFormState} from '@/interface/index'
-import {  columnsTitle } from '~/service/table';
-import { translateName } from '~/service/helper';
+import {  columnsTitle, rulesByFile } from '~/service/table';
+import { checkKeyFormObject, getRandomId, transformExcellToArray, translateName } from '~/service/helper';
 import { Excel } from "antd-table-saveas-excel";
+import * as XLSX from 'xlsx';
 
 const loading = ref(false)
 const list = ref<IFormState[]>([])
@@ -135,7 +145,7 @@ const currentItem = ref()
 const count = ref(0)
 const showSearch = ref(false)
 const searchParamsMain = ref<string[][]>([])
-
+const fileList = ref([])
 function getDate(filterData?: any) {
   loading.value = true
   const resPromise = getAllDataFromIndexedDB(filterData)
@@ -178,7 +188,10 @@ function exportToExcel() {
             })
             .saveAs("Excel.xlsx");
 }
-
+function handleFi(e:any) {
+  console.log(e);
+  
+}
 function openModal() {
   currentItem.value = null
   showModal.value = true;
@@ -191,7 +204,45 @@ function editModal(value: any) {
 function openSearhModal() {
   showSearch.value = true
 }
+const handleFile = (event: Event) => {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  if (!file) return;
 
+  const reader = new FileReader();
+  reader.onload = (e: any) => {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+
+    // Предполагая, что ваши данные находятся на первом листе
+    const firstSheetName = workbook.SheetNames[0]; 
+    const worksheet = workbook.Sheets[firstSheetName];
+
+    // Преобразование листа в массив объектов
+    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+    const res =  transformExcellToArray(jsonData)
+
+    const list =  res.map(t =>  checkKeyFormObject(t))
+    if(list.length) {
+      Promise.all(list.map(t => {
+        const formData = {
+          ...t,
+          id: getRandomId(),
+        };
+        return addDataToIndexedDB(formData);
+      }))
+      .then(() => {
+        message.success('Таблица excell добавлено');
+        getDate();
+      })
+      .catch(error => {
+        // Handle any errors here
+        message.error('Ошибка',);
+      });
+    }
+  };
+  reader.readAsArrayBuffer(file);
+};
 function getParams(e: IFormState) {
   let mainParams: string[][] = []
   let subParams: string[][] = []
@@ -232,9 +283,10 @@ async function filterData(main: string[][]) {
       [item[0]]: item[1]
     }
   }, {})
-  getDate(filterParam)
-  
+   getDate(filterParam)
+   count.value = list.value.length
 }
+
 onMounted(() => {
   getDate()
 })
@@ -254,5 +306,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 10px;
 }
 </style>

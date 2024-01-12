@@ -1,11 +1,11 @@
 <template>
     <Teleport to="#main_container">
-        <a-modal  :width="width"  v-bind="$attrs" @cancel="closeModal">
-         <slot/>
-         <template #footer>
+        <a-modal  :width="width"  v-bind="$attrs" @cancel="closeModal" :footer="false">
+            <slot name="header"></slot>
+            <slot name="content">
+            </slot>
             <slot name="footer">
             </slot>
-         </template>
         </a-modal>
      </Teleport>
 </template>

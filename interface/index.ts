@@ -29,6 +29,7 @@ export interface IFormState {
     main: IMainInfo
     id: string
     sub: ISubInfo
+    status: 'active' | 'archival'
     [key: string]: any
   }
 
