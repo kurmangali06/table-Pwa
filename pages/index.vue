@@ -24,6 +24,7 @@
         </div>
       </a-card>
       <div class="table" v-if="!loading">
+        <ConfigProvider :locale="ruRU">
           <a-table 
             :dataSource="list" :columns="columnsTitle"  
             :scrollToFirstRowOnChange="true" 
@@ -108,6 +109,7 @@
               </template>
             </template>
           </a-table>
+        </ConfigProvider>
       </div>
       <div v-else class="loading">
         <a-skeleton-button 
@@ -137,6 +139,8 @@ import {  columnsTitle, rulesByFile } from '~/service/table';
 import { checkKeyFormObject, getRandomId, transformExcellToArray, translateName } from '~/service/helper';
 import { Excel } from "antd-table-saveas-excel";
 import * as XLSX from 'xlsx';
+import { ConfigProvider } from 'ant-design-vue';
+import ruRU from 'ant-design-vue/es/locale/ru_RU';
 
 const loading = ref(false)
 const list = ref<IFormState[]>([])
