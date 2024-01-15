@@ -3,9 +3,13 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     '@ant-design-vue/nuxt',
-    '@vite-pwa/nuxt'
+    '@vite-pwa/nuxt',
+    '@pinia/nuxt'
   ],
   ssr: false,
+  pinia: {
+    storesDirs: ['./stores/**', './custom-folder/stores/**'],
+  },
   pwa: {
     disable: false,
     registerType: 'autoUpdate',

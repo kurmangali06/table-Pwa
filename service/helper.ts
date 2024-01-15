@@ -117,8 +117,8 @@ export function transformExcellToArray(list: any[]): IFormState[] {
     })
     return res as IFormState[] 
 }
-const mainInfoKeys = ['fullName', 'position', 'gender', 'nationality', 'education', 'fieldOfActivity', 'experience', 'placeOfBirth'];
-const subInfoKeys = ['academicDegree', 'fameLevel', 'levelOfProfessionalism', 'reputation', 'managersExperience', 'religiousBeliefs', 'levelOfNotedAchievements', 'familyStatus', 'amountOfChildren', 'scopeOfVision', 'leadershipType', 'militaryService'];
+export const mainInfoKeys = reactive(['fullName', 'position', 'gender', 'nationality', 'education', 'fieldOfActivity', 'experience', 'placeOfBirth']);
+export const subInfoKeys = reactive(['academicDegree', 'fameLevel', 'levelOfProfessionalism', 'reputation', 'managersExperience', 'religiousBeliefs', 'levelOfNotedAchievements', 'familyStatus', 'amountOfChildren', 'scopeOfVision', 'leadershipType', 'militaryService']);
 export function checkKeyFormObject(obj: any ): IFormState  {  
     const res =  Object.entries(obj).reduce(({ main, sub }: any, [key, value]) => {
       if (mainInfoKeys.includes(key)) {
@@ -151,7 +151,7 @@ export const mainListCrieria =  reactive([
     key: 'main.gender',
     list: [
         { value: 'М', label: 'М' },
-        {value: 'Ж', label: 'Ж'},
+        { value: 'Ж', label: 'Ж'},
     ]
    },
    {
@@ -159,7 +159,7 @@ export const mainListCrieria =  reactive([
     key: 'main.nationality',
     list: [
         {value:'Казах' },
-        {value:'Русский (славянин)' },
+        {value:'Русский' },
         {value:'Татарин' },
         {value:'Узбек' },
         {value:'Кыргыз' },

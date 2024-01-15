@@ -5,7 +5,7 @@ import type { IFormState } from '~/interface';
 
 class MyDatabase extends Dexie {
   myObjectStore: Dexie.Table<IFormState, number>;
-
+  archiveStore: Dexie.Table<IFormState, number>;
   constructor() {
     super('myDatabase');
 
@@ -13,9 +13,13 @@ class MyDatabase extends Dexie {
     this.version(1).stores({
       myObjectStore: '++id, name',
     });
+    this.version(2).stores({
+      archiveStore: '++id, name' 
+    });
 
     // Инициализация хранилища объектов
     this.myObjectStore = this.table('myObjectStore');
+    this.archiveStore = this.table('archiveStore');
   }
 }
 
@@ -34,8 +38,29 @@ export const addDataToIndexedDB = async (data: IFormState): Promise<number> => {
   }
 };
 
-
-
+export const addDataToArchive = async (data: IFormState) => {
+  try {
+    if (data.status === 'archival') {
+      const serializableData = prepareDataForStorage(data);
+      console.log(serializableData);
+      await db.archiveStore.add(serializableData);
+      await deleteDataFromIndexedDB(serializableData.id)
+    }
+    // Для других статусов можно вызвать addDataToIndexedDB или обработать по-другому
+  } catch (error) {
+    console.error('Error adding object to the archive store', error);
+    throw error;
+  }
+};
+export const deleteDataFromIndexedDB = async (id: any) => {
+  try {
+    await db.myObjectStore.delete(id);
+    console.log(`Record with id ${id} has been deleted from myObjectStore`);
+  } catch (error) {
+    console.error('Error deleting object from the store', error);
+    throw error;
+  }
+};
 export const getAllDataFromIndexedDB = async (filterCriteria = null): Promise<IFormState[]> => {
   try {
     let result;
@@ -66,6 +91,10 @@ export const clearIndexedDB = async (): Promise<void> => {
   }
 };
 
+export const getAllStatusArchival =async () => {
+  const result = await db.archiveStore.toArray();
+  return result;
+}
 export const arrayLength = async () => {
   try {
     const length = await db.myObjectStore.count();
