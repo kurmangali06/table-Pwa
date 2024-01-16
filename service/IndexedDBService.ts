@@ -65,10 +65,12 @@ export const getAllDataFromIndexedDB = async (filterCriteria = null): Promise<IF
   try {
     let result;
     if (filterCriteria) {
+      console.log(filterCriteria);
+      
       result = await db.myObjectStore
         .filter(item => {          
           return Object.keys(filterCriteria).every(key => {
-            return item.main[key] === filterCriteria[key] || item.sub[key] === filterCriteria[key];
+            return item.main[key.trim()] === filterCriteria[key.trim()] || item.sub[key.trim()] === filterCriteria[key.trim()];
           });
         })
         .toArray();

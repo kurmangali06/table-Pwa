@@ -13,19 +13,19 @@
       />
       <div style="height: 10px;"></div>
         <a-button type="default"  :disabled="loading" @click="openModal">Создать</a-button>
-        <a-button type="default" :disabled="loading" style="margin-left: 10px;" @click="openSearhModal">Поиск по критериям</a-button>
+        <a-button type="default" :disabled="loading" style="margin-left: 10px;" @click="openSearhModal()">Поиск по критериям</a-button>
         <a-button type="primary"  :disabled="loading" style="margin-left: 10px;" @click="exportToExcel">Скачать в excell</a-button>
         <a-input type="file" style="margin-top: 10px;" :accept="rulesByFile" @change="handleFile" />
       </a-card>
       <a-card v-if="searchParamsMain.length">
         <div>
-          <a-tag closable @close="handleClose(item[1])" v-for="(item, index) in searchParamsMain" :key="index">{{ translateName(item[0]) }}:  {{ item[1] }}</a-tag>
-
+          <a-tag closable @close="handleClose(item[1])" v-for="(item, index) in searchParamsMain" :key="item[0]">{{ translateName(item[0]) }}:  {{ item[1] }}</a-tag>
+          <a-button v-if="searchParamsMain.length" type="default"  :disabled="loading" @click="openSearhModal()">Все категорий</a-button>
         </div>
       </a-card>
       <a-tabs v-model:activeKey="activeKey" type="card">
         <a-tab-pane key="1" tab="Активные">
-          <Table v-if="!loading" :columns="columnsTitle"  :count="count" :list="list" @edit-modal="editModal"/>
+          <Table v-if="!loading" :columns="tableStore.columns"  :count="count" :list="list" @edit-modal="editModal"/>
           <div v-else class="loading">
             <a-skeleton-button 
               v-for="n in 10" 
@@ -36,7 +36,7 @@
           </div>
         </a-tab-pane>
         <a-tab-pane key="2" tab="Архивные">
-          <Table @edit-modal="editModal" v-if="!loading" :columns="columnsTitle"  :count="count" :list="listArchive"/>
+          <Table @edit-modal="editModalArchive" v-if="!loading" :columns="tableStore.columns"  :count="count" :list="listArchive"/>
           <div v-else class="loading">
             <a-skeleton-button 
               v-for="n in 10" 
@@ -46,17 +46,14 @@
               :size=" n === 1 ? 'large' : 'small' " />
           </div>
         </a-tab-pane>
-      </a-tabs>
-
-
-      
-    
+      </a-tabs>    
     </div>
 
 
     <a-button type="dashed" @click="clearDate">Clear</a-button>
     <addDate v-if="showModal" v-model:open="showModal"  :info="currentItem"/>
-    <ModalGlobalSearch v-if="showSearch" v-model:open="showSearch" @criteria-params="getParams" />
+    <addDate v-if="showModalArchive" v-model:open="showModalArchive"  :info="currentItemArchive" mode="viewing"/>
+    <ModalGlobalSearch v-if="showSearch" v-model:open="showSearch" @criteria-params="getParams" :params="searchFilterParams" />
 </template>
 
 
@@ -65,7 +62,7 @@ import {  getAllDataFromIndexedDB,clearIndexedDB, arrayLength, addDataToIndexedD
 import { ref, onMounted } from 'vue';
 import addDate from '~/components/modal/addDate.vue';
 import {type IFormState} from '@/interface/index'
-import {  columnsTitle, rulesByFile } from '~/service/table';
+import {  rulesByFile } from '~/service/table';
 import { checkKeyFormObject, getRandomId, transformExcellToArray, translateName } from '~/service/helper';
 import { Excel } from "antd-table-saveas-excel";
 import * as XLSX from 'xlsx';
@@ -74,14 +71,16 @@ const loading = ref(false)
 const list = ref<IFormState[]>([])
 const listArchive = ref<IFormState[]>(([]))
 const showModal = ref<boolean>(false);
+const showModalArchive = ref<boolean>(false);
 const search = ref<string>('')
 const currentItem = ref()
+const currentItemArchive = ref()
 const count = ref(0)
 const showSearch = ref(false)
 const activeKey = ref('1');
-
+const searchFilterParams = ref()
 const searchParamsMain = ref<string[][]>([])
-
+const tableStore = useTableStore()
 function getDate(filterData?: any) {
   loading.value = true
   const resPromise = getAllDataFromIndexedDB(filterData)
@@ -123,7 +122,7 @@ function exportToExcel() {
     const excel = new Excel();
           excel
             .addSheet("test")
-            .addColumns(columnsTitle)
+            .addColumns(tableStore.columns)
             .addDataSource(excelList, {
               str2Percent: true
             })
@@ -137,6 +136,10 @@ function openModal() {
 function editModal(value: any) {
   currentItem.value = value
   showModal.value = true;
+}
+function editModalArchive(val: any) {
+  currentItemArchive.value = val
+  showModalArchive.value = true;
 }
 function openSearhModal() {
   showSearch.value = true
@@ -181,14 +184,33 @@ const handleFile = (event: Event) => {
   };
   reader.readAsArrayBuffer(file);
 };
-function getParams(e: IFormState) {
+function getParams(e: IFormState) {  
+  activeKey.value = '1'
   let mainParams: string[][] = []
   let subParams: string[][] = []
   if('main' in e)
-     mainParams = Object.entries(e.main).filter(e => e[1] !== '');
+     mainParams = Object.entries(e.main).filter(e => e[1] !== '' && e[1] !== undefined);
   if('sub' in e)
-    subParams = Object.entries(e.sub).filter(e => e[1] !== '' && e[1] !== 0)
-  searchParamsMain.value = [...mainParams, ...subParams]
+    subParams = Object.entries(e.sub).filter(e => e[1] !== '' && e[1] !== 0 && e[1] !== undefined)
+  let newParams = [...mainParams, ...subParams];
+  if (searchParamsMain.value.length) {
+    // Update existing values or add new values
+    newParams.forEach(param => {
+      const index = searchParamsMain.value.findIndex(existingParam => existingParam[0] === param[0]);
+      if (index !== -1) {
+        // Update existing value
+        searchParamsMain.value[index] = param;
+      } else {
+        // Add new value
+        searchParamsMain.value.push(param);
+      }
+    });
+  } else {
+    searchParamsMain.value = newParams;
+  }
+  if(searchParamsMain.value)
+    filterData(searchParamsMain.value)
+
 }
 
 
@@ -202,18 +224,16 @@ function onSearch(searchValue: string) {
   count.value = list.value.length
 }
 
-
+watch(() => searchParamsMain.value, () => {
+  filterData(searchParamsMain.value)
+})
 
 watch(() => showModal.value, () => {
   if(showModal.value === false)
-    getDate()
+    getDate(searchFilterParams.value)
 })
 
-watch(() => searchParamsMain.value, () => {
-  if(!searchParamsMain.value.length)
-    getDate()
-  filterData(searchParamsMain.value)
-})
+
 
 watch(() => activeKey.value,() => {
   if(activeKey.value == '1')
@@ -221,6 +241,11 @@ watch(() => activeKey.value,() => {
   else
    count.value = listArchive.value.length
 })
+
+watch(() => list.value, () => {
+  count.value = list.value.length
+})
+
 async function filterData(main: string[][]) {    
   const filterParam = main.reduce((acc, item) => {
     return {
@@ -228,8 +253,10 @@ async function filterData(main: string[][]) {
       [item[0]]: item[1]
     }
   }, {})
+  searchFilterParams.value = filterParam
    getDate(filterParam)
-   count.value = list.value.length
+   console.log(list.value.length);
+   
 }
 
 onMounted(() => {

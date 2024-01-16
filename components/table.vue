@@ -4,7 +4,8 @@
           <a-table 
             :dataSource="list" :columns="columns"  
             :scrollToFirstRowOnChange="true" 
-            :scroll="{x :100}"   
+            :scroll="{x :100}" 
+            bordered  
             @change="changePage"
             :pagination="{ pageSize: pageSize, position:['bottomCenter'], pageSizeOptions: ['10', '20', '50', '100'] }" >
             <template #emptyText>
@@ -23,10 +24,14 @@
             </template>
             <template #bodyCell="{ column, text , record}">
               <template v-if="column.dataIndex === 'fullName'">
-                <NuxtLink @click="editModal(record)">{{ record.main.fullName }}</NuxtLink>
+                <NuxtLink @click="editModal(record)">{{ record.main.fullName || '__' }}</NuxtLink>
               </template>
               <template v-else-if="column.dataIndex === 'position'">
-              <div style="width: 300px;">{{ record.main.position }}</div>
+                <a-tooltip>
+                    <template #title>{{ record.main.position}}</template>
+                    <div class="truncate" >{{ record.main.position }}</div>
+                  </a-tooltip>
+             
               </template>
               <template v-else-if="column.dataIndex === 'gender'">
                 {{ record.main.gender }}
@@ -82,6 +87,9 @@
               <template v-else-if="column.dataIndex === 'militaryService'">
                 {{ record.sub.militaryService }}
               </template>
+              <template v-else>
+                {{ record.sub[column.dataIndex as string] || record.main[column.dataIndex as string]  }}
+              </template>
             </template>
           </a-table>
         </ConfigProvider>
@@ -94,7 +102,7 @@ import type { PropType } from 'vue';
 import type { IFormState } from '~/interface';
 
 const emit = defineEmits(['editModal'])
-
+const tableStore = useTableStore()
 const props = defineProps({
     columns: {
         type: Array as PropType<any>,
@@ -119,5 +127,10 @@ function changePage(e:any) {
 }
 </script>
 <style lang="css" scoped>
-    
+.truncate {
+    width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>

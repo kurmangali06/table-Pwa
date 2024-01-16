@@ -35,7 +35,7 @@ export interface IFormState {
 
   export interface IValue {
     value: string
-    label?: string
+    label: string
   }
 
   export interface IPercentages {
@@ -51,4 +51,8 @@ export interface IListCrieria  {
   label: string
   key: string
   list?: IValue[] 
+}
+export interface IColumn {
+  title: string
+  dataIndex : string
 }

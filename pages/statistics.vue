@@ -45,20 +45,20 @@
 <script lang="ts" setup>
 import type { IFormState, IPercentages } from '~/interface';
 import { getAllDataFromIndexedDB } from '~/service/IndexedDBService';
-import { fieldOfActivityList, mainListCrieria } from '~/service/helper';
+import { fieldOfActivityList } from '~/service/helper';
 import type { ApexOptions } from 'apexcharts';
 import { calculateAverage, calculateFilledPercentage } from '~/service/statictis';
 const percentages = ref<IPercentages[]>([])
 const totalPercentagesList = ref()
 const loading = ref(false)
-
+const tableStore = useTableStore()
 function getAnaliticList() {
   loading.value = true
     const resPromise =  getAllDataFromIndexedDB()
     resPromise.then((res) => {
         let total = res.length;
         totalPercentagesList.value = calculateFilledPercentage(res)        
-        const findElement = mainListCrieria.find(e => e.label.trim() === 'Сфера деятельности'.trim())        
+        const findElement = tableStore.mainListCrieria.find(e => e.label.trim() === 'Сфера деятельности'.trim())        
         if(findElement && findElement.list) {
           let counts = findElement.list.map(element => {
             let count = res.filter(item => item.main.fieldOfActivity === element.value).length;

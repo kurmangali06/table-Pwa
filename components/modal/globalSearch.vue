@@ -40,11 +40,17 @@
 </template>
 <script lang="ts" setup>
 import type { IListCrieria, IFormState } from '~/interface';
-import { checkKey, mainListCrieria } from '~/service/helper';
+import { checkKey } from '~/service/helper';
 
 
 const emit = defineEmits(['update:open', 'criteriaParams'])
-
+const tableStore = useTableStore()
+const props = defineProps({
+    params: {
+        type: Object as PropType<IFormState>,
+        default: () => ({})
+    }
+})
 function hide() {
     emit('update:open', false);
 }
@@ -82,9 +88,40 @@ function onSubmit() {
     emit('criteriaParams', formState)
     hide()
 }
-onBeforeMount(() => {
-    mainCriteria.value = mainListCrieria.filter(item => item.key.startsWith('main.')).filter((e) => e.list?.length);
-    subCriteria.value = mainListCrieria.filter(item => item.key.startsWith('sub.')).filter((e) => e.list?.length);; 
+function fetchProps() { 
+    const mainList =  Object.entries(props.params)
+    const formStateList = Object.entries(formState.main)
+    const formStateSubList = Object.entries(formState.sub)
+       mainList.forEach(e => {
+            const findElement = formStateList.find(t => t[0] === e[0])
+          
+            if(findElement) {
+                formState.main[findElement[0]] = e[1]
+            } else {
+                formState.main[e[0]] = e[1]
+            }
+         
+       })
+       formStateSubList.forEach(e => {
+        const findElementSub = formStateList.find(p => p[0] === e[0])
+        if(findElementSub) {
+                formState.sub[findElementSub[0]] = e[1]
+            } else {
+                formState.sub[e[0]] = e[1]
+            }
+       })
+       
+}
+watch(() => props.params,() => {
+    if(props.params)
+     fetchProps()
+})
+onMounted(() => {
+    if(props.params) {
+        fetchProps()
+    }
+    mainCriteria.value = tableStore.mainListCrieria.filter(item => item.key.startsWith('main.')).filter((e) => e.list?.length) as IListCrieria[];
+    subCriteria.value = tableStore.mainListCrieria.filter(item => item.key.startsWith('sub.')).filter((e) => e.list?.length) as IListCrieria[];
 })
 </script>
 <style lang="css" scoped>

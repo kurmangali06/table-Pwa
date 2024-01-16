@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   ],
   ssr: false,
   pinia: {
-    storesDirs: ['./stores/**', './custom-folder/stores/**'],
+    storesDirs: ['./stores/**',],
   },
   pwa: {
     disable: false,
