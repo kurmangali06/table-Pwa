@@ -42,7 +42,10 @@ export interface IFormState {
     value: string
     percentage: number
   }
-
+export interface IDashboard {
+  id: string,
+  result: IPercentages[]
+}
  export  interface RulesRefType {
     [key: string]: Array<{ [key: string]: any }>;
 }

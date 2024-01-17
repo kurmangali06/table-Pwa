@@ -319,14 +319,18 @@ async function filterData(main: string[][]) {
     }
   }, {})
   searchFilterParams.value = filterParam
+  tableStore.setSeacrhForm(filterParam as IFormState)
    getDate(filterParam)
    
 }
 
 onMounted(() => {
-
-  getDate()
-  
+  if(tableStore.list.length) {
+    list.value = tableStore.list
+    getParams(tableStore.searchForm)
+  } else {
+    getDate()
+  }
 })
 </script>
 

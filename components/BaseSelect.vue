@@ -25,11 +25,12 @@ const props = defineProps({
         default: ''
     },
 })
-const emit= defineEmits(['modelValue:value'])
+const emit= defineEmits(['modelValue:value', 'change'])
 const value = ref<string>('');
 
 function selectedValue(e :any) {    
     emit('modelValue:value', e)
+    emit('change', e)
 }
 
 

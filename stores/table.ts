@@ -351,7 +351,8 @@ export const useTableStore = defineStore(STORE_ID, {
         ]
        },
     ],
-    listTable : [] as IFormState[]
+    listTable : [] as IFormState[],
+    searhForm: {} as IFormState
     
   }),
   getters: {
@@ -361,7 +362,8 @@ export const useTableStore = defineStore(STORE_ID, {
     subKey: (state) => state.subKeys,
     columns: (state) => state.columnsTitle,
     listCrieria: (state) => state.mainListCrieria,
-    list: (state) => state.listTable
+    list: (state) => state.listTable,
+    searchForm: (state) => state.searhForm
   },
   actions: {
     updatedForm(update: string, actions: 'main' | 'sub' ) {        
@@ -419,6 +421,9 @@ export const useTableStore = defineStore(STORE_ID, {
     },
     setTable(newList: IFormState[]) {
       this.listTable = newList
+    },
+    setSeacrhForm(val: IFormState) {
+      this.searhForm = val
     }
   },
 })
