@@ -350,7 +350,8 @@ export const useTableStore = defineStore(STORE_ID, {
             {value:'Участие в военных действиях' },
         ]
        },
-    ]
+    ],
+    listTable : [] as IFormState[]
     
   }),
   getters: {
@@ -359,7 +360,8 @@ export const useTableStore = defineStore(STORE_ID, {
     mainKey: (state) => state.mainKeys,
     subKey: (state) => state.subKeys,
     columns: (state) => state.columnsTitle,
-    listCrieria: (state) => state.mainListCrieria
+    listCrieria: (state) => state.mainListCrieria,
+    list: (state) => state.listTable
   },
   actions: {
     updatedForm(update: string, actions: 'main' | 'sub' ) {        
@@ -414,6 +416,9 @@ export const useTableStore = defineStore(STORE_ID, {
         }
       }
 
+    },
+    setTable(newList: IFormState[]) {
+      this.listTable = newList
     }
   },
 })

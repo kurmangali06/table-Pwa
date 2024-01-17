@@ -2,21 +2,43 @@
     <div >
 
       <a-card class="title">
-        <a-input-search
-        v-model:value="search"
-        placeholder="Поиск по ФИО"
-        enter-button
-        :disabled="loading"
-        allow-clear
-        @search="onSearch"
+        <div class="title_sub">
+          <div>
+            <a-input-search
+            v-model:value="search"
+            placeholder="Поиск по ФИО"
+            enter-button
+            :disabled="loading"
+            allow-clear
+            @search="onSearch"
+            />
+          <div style="height: 10px;"></div>
+            <a-button type="default"  :disabled="loading" @click="openModal">Создать</a-button>
+            <a-button type="default" :disabled="loading" style="margin-left: 10px;" @click="openSearhModal()">Поиск по критериям</a-button>
+            <a-button type="primary"  :disabled="loading" style="margin-left: 10px;" @click="exportToExcel">Скачать в excell</a-button>
+          </div>
+  
+          <div class="clearfix">
+              <a-upload :accept="rulesByFile" :file-list="fileList" :before-upload="beforeUpload" @remove="handleRemove">
+                <a-button>
+                  <upload-outlined></upload-outlined>
+                  Загрузить Excell
+                </a-button>
+              </a-upload>
+              <a-button
+                type="primary"
+                :disabled="!fileList?.length"
+                :loading="uploading"
+                style="margin-top: 16px"
+                @click="handleUpload"
+              >
+                {{ uploading ? 'Загрузка' : 'Начать загрузку' }}
+              </a-button>
+          </div>
+        </div>
 
-      />
-      <div style="height: 10px;"></div>
-        <a-button type="default"  :disabled="loading" @click="openModal">Создать</a-button>
-        <a-button type="default" :disabled="loading" style="margin-left: 10px;" @click="openSearhModal()">Поиск по критериям</a-button>
-        <a-button type="primary"  :disabled="loading" style="margin-left: 10px;" @click="exportToExcel">Скачать в excell</a-button>
-        <a-input type="file" style="margin-top: 10px;" :accept="rulesByFile" @change="handleFile" />
       </a-card>
+
       <a-card v-if="searchParamsMain.length">
         <div>
           <a-tag closable @close="handleClose(item[1])" v-for="(item, index) in searchParamsMain" :key="item[0]">{{ translateName(item[0]) }}:  {{ item[1] }}</a-tag>
@@ -66,8 +88,11 @@ import {  rulesByFile } from '~/service/table';
 import { checkKeyFormObject, getRandomId, transformExcellToArray, translateName } from '~/service/helper';
 import { Excel } from "antd-table-saveas-excel";
 import * as XLSX from 'xlsx';
+import type { UploadProps } from 'ant-design-vue';
 
 const loading = ref(false)
+const uploading = ref<boolean>(false);
+
 const list = ref<IFormState[]>([])
 const listArchive = ref<IFormState[]>(([]))
 const showModal = ref<boolean>(false);
@@ -76,10 +101,13 @@ const search = ref<string>('')
 const currentItem = ref()
 const currentItemArchive = ref()
 const count = ref(0)
+const fileList = ref<UploadProps['fileList']>([]);
 const showSearch = ref(false)
 const activeKey = ref('1');
 const searchFilterParams = ref()
 const searchParamsMain = ref<string[][]>([])
+const router = useRouter();
+const route = useRoute();
 const tableStore = useTableStore()
 function getDate(filterData?: any) {
   loading.value = true
@@ -92,6 +120,7 @@ function getDate(filterData?: any) {
       ...e
     } 
   })
+  tableStore.setTable(list.value)
   archivalData.then((res) => {
     listArchive.value =  res.map((e: IFormState) => {
     return {
@@ -144,28 +173,33 @@ function editModalArchive(val: any) {
 function openSearhModal() {
   showSearch.value = true
 }
-const handleFile = (event: Event) => {
-  const file = (event.target as HTMLInputElement).files?.[0];
-  if (!file) return;
+const handleFile = (file: File) => {  
+  // Показать индикатор загрузки
+  const hideLoading = message.loading('Внимание! Дубликаты не будут добавлены!', 0);
+  
+  if (!file) {
+    hideLoading(); // Скрываем индикатор загрузки, если файл не выбран
+    return;
+  }
 
   const reader = new FileReader();
   reader.onload = (e: any) => {
     const data = new Uint8Array(e.target.result);
     const workbook = XLSX.read(data, { type: 'array' });
 
-    // Предполагая, что ваши данные находятся на первом листе
     const firstSheetName = workbook.SheetNames[0]; 
     const worksheet = workbook.Sheets[firstSheetName];
 
-    // Преобразование листа в массив объектов
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
-    console.log(jsonData);
-    
-    const res =  transformExcellToArray(jsonData)
+    const jsonData = XLSX.utils.sheet_to_json(worksheet);    
+    const res = transformExcellToArray(jsonData)
 
-    const list =  res.map(t =>  checkKeyFormObject(t))
-    if(list.length) {
-      Promise.all(list.map(t => {
+    let listExcell = res.map(t => checkKeyFormObject(t))
+    list.value.forEach(e => {
+      listExcell = listExcell.filter(e => e.main.fullName.trim() !== e.main.fullName.trim())
+    })
+
+    if (listExcell.length) {
+      Promise.all(listExcell.map(t => {
         const formData = {
           ...t,
           id: getRandomId(),
@@ -173,18 +207,47 @@ const handleFile = (event: Event) => {
         return addDataToIndexedDB(formData);
       }))
       .then(() => {
+        hideLoading(); // Скрываем индикатор загрузки после успешного выполнения
         message.success('Таблица excell добавлено');
         getDate();
       })
       .catch(error => {
-        // Handle any errors here
-        message.error('Ошибка',);
+        hideLoading(); // Скрываем индикатор загрузки в случае ошибки
+        message.error('Ошибка');
       });
+    } else {
+      hideLoading(); // Скрываем индикатор загрузки, если данные уже имеются
+      message.error('Данные уже имеются! Проверьте, чтобы ФИО не совпадали с данной таблицей');
     }
   };
+
   reader.readAsArrayBuffer(file);
 };
-function getParams(e: IFormState) {  
+const handleUpload = () => {
+  console.log(fileList.value);
+  fileList.value?.forEach(e => {
+    handleFile(e as  any)
+    
+  })
+  
+}
+const handleRemove: UploadProps['onRemove'] = file => {
+  if(fileList.value) {
+    const index = fileList.value.indexOf(file);
+    const newFileList = fileList.value.slice();
+    newFileList.splice(index, 1);
+    fileList.value = newFileList;
+  }
+};
+
+const beforeUpload: UploadProps['beforeUpload'] = file => {
+  fileList.value = [...(fileList.value || []), file];
+  return false;
+};
+
+function getParams(e: IFormState) { 
+  console.log(e);
+  
   activeKey.value = '1'
   let mainParams: string[][] = []
   let subParams: string[][] = []
@@ -193,6 +256,8 @@ function getParams(e: IFormState) {
   if('sub' in e)
     subParams = Object.entries(e.sub).filter(e => e[1] !== '' && e[1] !== 0 && e[1] !== undefined)
   let newParams = [...mainParams, ...subParams];
+  console.log(newParams);
+  
   if (searchParamsMain.value.length) {
     // Update existing values or add new values
     newParams.forEach(param => {
@@ -255,12 +320,13 @@ async function filterData(main: string[][]) {
   }, {})
   searchFilterParams.value = filterParam
    getDate(filterParam)
-   console.log(list.value.length);
    
 }
 
 onMounted(() => {
+
   getDate()
+  
 })
 </script>
 
@@ -269,10 +335,17 @@ onMounted(() => {
 
 .title {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
   width: 100%;
   gap: 10px;
+}
+.title_sub {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  align-items: center;
+  max-height: 100px;
 }
 .spin {
   display: flex;
@@ -284,5 +357,11 @@ onMounted(() => {
   flex-direction: column;
   gap: 10px;
   margin: 10px;
+}
+.clearfix {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 </style>

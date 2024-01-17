@@ -5,16 +5,18 @@
             <a-divider v-else dashed  plain orientation="left"><a-typography-title :level="4">Просмотр данных</a-typography-title></a-divider>
         </template>
         <template #content>
-            {{ formState }}
             <a-form 
             :model="formState"
             name="dynamic_rule"
+            id="printable-area"
+            class="printable"
             :label-col="{ span: 8}"
+            ref="dateInfoRef"
             :wrapper-col="{ span: 16 }"
             >
                 <a-divider dashed  plain orientation="left"><a-typography-title :level="5">Основная информация</a-typography-title></a-divider>
-                <template v-for="(item, index) in mainCriteria" :key="item.key">
-                        <a-form-item
+                <div v-for="(item, index) in mainCriteria" :key="item.key">
+                    <a-form-item
                              v-if="tableStore.stateRef[checkKey(item.key, 'main')]"
                             :label="item.label"
                             :rules="tableStore.stateRef[checkKey(item.key, 'main')]"
@@ -29,9 +31,9 @@
                             <span v-if="errorMessages(checkKey(item.key, 'main'))"  style="color: red;">{{errorMessages(checkKey(item.key, 'main')) }}</span> 
                     </a-form-item> 
                       
-                </template>
+                </div>
 
-                <a-collapse v-model:activeKey="activeKey" collapsible="header">
+                <a-collapse v-model:activeKey="activeKey" class="subInfo" collapsible="header">
                     <a-collapse-panel key="1"  header="Дополнительная информация">
                         <template v-for="(item, index) in subCriteria" :key="item.key">
                             <a-form-item
@@ -55,11 +57,12 @@
             </a-form>
         </template>
           <template #footer>
-            <a-form-item v-if="props.mode === 'edit'" :wrapper-col="{ offset:8, span: 24 }" style="margin-top: 10px;">
+            <a-form-item v-if="props.mode === 'edit'" :wrapper-col="{ offset:6, span: 24 }" style="margin-top: 10px;">
                 <a-button type="primary" @click="openModal"  class="btn">Изменить критерии</a-button>
                 <a-button type="default" @click="onSubmit" class="btn">{{titleBtn}}</a-button>
                 <a-button type="default"  class="btn" @click="hide">Отмена</a-button>
-                <a-button type="primary" @click="addArchive">Перенести в архив</a-button>
+                <a-button type="primary" class="btn" @click="addArchive">Перенести в архив</a-button>
+                <!-- <a-button type="primary" @click="printPage">Скачать PDF</a-button> -->
              </a-form-item>  
           </template>
     </BaseModal>
@@ -85,6 +88,7 @@ const props = defineProps({
         default: 'edit'
     }
 })
+const dateInfoRef = ref();
 const emit = defineEmits(['update:open'])
 const tableStore = useTableStore()
 const errList = ref<any[]>([])
@@ -139,12 +143,28 @@ const titleBtn = computed(() => {
 const { resetFields,   } = useForm(formState.main, tableStore.stateRef, {
     validateOnRuleChange: true
 });
+function printElement(elem: HTMLDivElement) {
+    console.log(elem);
+    
+  if (process.client) {
+    const cloned = elem.cloneNode(true) as HTMLDivElement;
+    document.body.appendChild(cloned);
+    cloned.classList.add('printable');
+    window.print();
+    document.body.removeChild(cloned);
+  }
+}
 
+function printPage() {
+  printElement(dateInfoRef.value.$el as HTMLDivElement);
+}
 async function onSubmit(){
   const body = {
    ...formState,
   }
-  if(props.info.id) {
+  try {
+    if(props.info.id) {
+        body.id = props.info.id
         await updateDataInIndexedDB(props.info.id, body);
         message.success('Успешно изменено');
     } else {
@@ -154,6 +174,14 @@ async function onSubmit(){
     }
         hide()
         resetFields()
+    
+  } catch (error) {
+          if(error instanceof Error) {
+            console.log(error);
+            message.error('заполните все обязательные поля');
+      }
+  }
+
     
 //   validate()
 //   .then(async() => {
@@ -282,5 +310,19 @@ onBeforeMount(() => {
   }
   .readOnly {
     pointer-events: none;
+  }
+.printable {
+    @media print {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+}
+@media print {
+    .ant-modal {
+      display: none;
+    }
+    .subInfo {
+        page-break-before: always;
+    }
   }
 </style>
