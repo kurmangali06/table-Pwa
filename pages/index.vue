@@ -190,7 +190,8 @@ const handleFile = (file: File) => {
     const firstSheetName = workbook.SheetNames[0]; 
     const worksheet = workbook.Sheets[firstSheetName];
 
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);    
+    const jsonData = XLSX.utils.sheet_to_json(worksheet); 
+  
     const res = transformExcellToArray(jsonData)
 
     let listExcell = res.map(t => checkKeyFormObject(t))

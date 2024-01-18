@@ -4,7 +4,8 @@ export default defineNuxtConfig({
   modules: [
     '@ant-design-vue/nuxt',
     '@vite-pwa/nuxt',
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    
   ],
   ssr: false,
   pinia: {

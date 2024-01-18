@@ -8,10 +8,7 @@
             <a-form 
             :model="formState"
             name="dynamic_rule"
-            id="printable-area"
-            class="printable"
             :label-col="{ span: 8}"
-            ref="dateInfoRef"
             :wrapper-col="{ span: 16 }"
             >
                 <a-divider dashed  plain orientation="left"><a-typography-title :level="5">Основная информация</a-typography-title></a-divider>
@@ -62,7 +59,7 @@
                 <a-button type="default" @click="onSubmit" class="btn">{{titleBtn}}</a-button>
                 <a-button type="default"  class="btn" @click="hide">Отмена</a-button>
                 <a-button type="primary" class="btn" @click="addArchive">Перенести в архив</a-button>
-                <!-- <a-button type="primary" @click="printPage">Скачать PDF</a-button> -->
+                <a-button type="primary" @click="printPage">Скачать PDF</a-button>
              </a-form-item>  
           </template>
     </BaseModal>
@@ -71,12 +68,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { addDataToArchive, addDataToIndexedDB, updateDataInIndexedDB } from '@/service/IndexedDBService'
-import {  checkKey, getRandomId } from '@/service/helper';
+import {  checkKey, getRandomId, translateName } from '@/service/helper';
 import {type IFormState, type IListCrieria} from '@/interface/index'
 import { Form } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { PropType } from 'vue';
 import lodash from 'lodash'
+import { usePDF } from 'vue3-pdfmake';
 
 const props = defineProps({
     info: {
@@ -143,20 +141,68 @@ const titleBtn = computed(() => {
 const { resetFields,   } = useForm(formState.main, tableStore.stateRef, {
     validateOnRuleChange: true
 });
-function printElement(elem: HTMLDivElement) {
-    console.log(elem);
-    
-  if (process.client) {
-    const cloned = elem.cloneNode(true) as HTMLDivElement;
-    document.body.appendChild(cloned);
-    cloned.classList.add('printable');
-    window.print();
-    document.body.removeChild(cloned);
-  }
-}
+const pdfmake = usePDF()
 
 function printPage() {
-  printElement(dateInfoRef.value.$el as HTMLDivElement);
+    const mainInfoByPdf = []
+    const subInfoByPdf = []
+    for (const [key, value] of Object.entries(formState.main)) {
+            if (value) {
+                mainInfoByPdf.push([{ text: translateName(key), bold: true }, value]);
+            }
+    }
+    for (const [key, value] of Object.entries(formState.sub)) {
+            if (value) {
+                subInfoByPdf.push([{ text: translateName(key), bold: true }, value]);
+            }
+    }
+    const content = [];
+
+    if (mainInfoByPdf.length > 0) {
+        content.push({
+            margin: [0, 50, 0, 0],
+            layout: 'lightHorizontalLines',
+            table: {
+                headerRows: 1,
+                widths: ['*', 'auto'],
+                body: [
+                    [{ text: 'Основная информация', bold: true, fontSize: 16, colSpan: 2, alignment: 'center' }, {}],
+                    ...mainInfoByPdf
+                ]
+            }
+        });
+    }
+
+    if (subInfoByPdf.length > 0) {
+        // Добавляем отступ между таблицами, если обе таблицы присутствуют
+        if (content.length > 0) {
+            content.push({ text: '', margin: [0, 10, 0, 10] });
+        }
+
+        content.push({
+            layout: 'lightHorizontalLines',
+            table: {
+                headerRows: 1,
+                widths: ['*', 'auto'],
+                body: [
+                    [{ text: 'Дополнительная информация', fontSize: 16, bold: true, colSpan: 2, alignment: 'center' }, {}],
+                    ...subInfoByPdf
+                ]
+            }
+        });
+    }
+
+    // Создание PDF только если есть контент
+    if (content.length > 0) {
+        pdfmake.createPdf({
+            content: content,
+            pageSize: 'A4',
+            pageOrientation: 'portrait'
+        }).download(`${formState.main.fullName}.pdf`);
+    } else {
+        // Здесь можно обработать случай, когда нет данных для отображения
+        message.error("Нет данных для отображения в PDF");
+    }
 }
 async function onSubmit(){
   const body = {
@@ -311,18 +357,5 @@ onBeforeMount(() => {
   .readOnly {
     pointer-events: none;
   }
-.printable {
-    @media print {
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-}
-@media print {
-    .ant-modal {
-      display: none;
-    }
-    .subInfo {
-        page-break-before: always;
-    }
-  }
+
 </style>

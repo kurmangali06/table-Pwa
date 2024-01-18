@@ -35,7 +35,7 @@ export function translateName(name: string): string {
             case 'placeOfBirth': 
              return 'Место рождения';
              case 'academicDegree': 
-             return 'Ученая степен';
+             return 'Ученая степень';
             case 'fameLevel': 
              return 'Уровень известности';
             case 'levelOfProfessionalism': 
