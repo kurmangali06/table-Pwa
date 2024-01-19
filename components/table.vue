@@ -3,7 +3,7 @@
         <ConfigProvider :locale="ruRU">
           <a-table 
             :dataSource="list" :columns="columns"  
-            :scroll="{ x: 2800, y: 650 }"
+            :scroll="{ x:4000, y: 650 }"
             class="table"
             bordered  
             @change="changePage"
@@ -133,7 +133,7 @@ function changePage(e:any) {
 </script>
 <style lang="css" >
 .truncate {
-    width: 200px;
+    width: 150px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

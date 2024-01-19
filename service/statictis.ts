@@ -1,27 +1,35 @@
 import type { IFormState } from "~/interface";
 
-export function calculateFilledPercentage(arr: IFormState[]): { mainFilledPercents: number[], subFilledPercents: number[] } {
-    const mainFilledPercents: number[] = [];
-    const subFilledPercents: number[] = [];
+export function calculateCompletionPercentage(array: IFormState[]): { main: number, sub: number } {
+  let mainTotal = 0;
+  let mainFilled = 0;
+  let subTotal = 0;
+  let subFilled = 0;
+  console.log(array.length);
   
-    arr.forEach((item) => {      
-      const mainFilledCount =  item.main ?  Object.values(item.main).filter(val => val !== null && val !== undefined && val !== '' && val !== 0).length : 1;  
-      const subFilledCount = item.sub ?  Object.values(item.sub).filter(val => val !== null && val !== undefined && val !== ''  && val !== 0).length : 1;      
-      const mainTotalFields =  Object.keys(item.main).length || 1;
-      const subTotalFields =   Object.keys(item.sub).length || 1 ;
+  array.forEach(item => {
+    Object.entries(item.main).forEach(([key, value]) => {
+      if(key)
+        mainTotal++;
+      if (value && value !== '') 
+          mainFilled++;
 
-      
-      const mainFilledPercent = ( mainFilledCount / mainTotalFields) * 100;
-      const subFilledPercent = ( subFilledCount / subTotalFields) * 100;
-      
-      mainFilledPercents.push(mainFilledPercent);
-      subFilledPercents.push(subFilledPercent);      
-    });  
-    return {
-      mainFilledPercents,
-      subFilledPercents
-    };
-  }
+    });
+
+    Object.entries(item.sub).forEach(([key, value]) => {
+      if(key)
+        subTotal++;
+      if (value && value !== '') 
+        subFilled++;
+    });
+  });
+
+  const mainPercentage = (mainFilled / mainTotal) * 100;
+  const subPercentage = (subFilled / subTotal) * 100;
+
+  return { main: mainPercentage, sub: subPercentage };
+}
+
 
  export function calculateAverage(arr: number[]): number {
     const sum = arr.reduce((a, b) => a + b, 0);

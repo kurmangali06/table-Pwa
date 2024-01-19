@@ -29,10 +29,10 @@
       <div class="footer" v-if="tableStore.list.length">
         <a-row :gutter="16">
           <a-col :span="10" >
-            <a-card  v-if=" totalPercentagesList && totalPercentagesList.mainFilledPercents">
+            <a-card  v-if=" totalPercentagesList && totalPercentagesList.main">
               <a-statistic
               title="основной информации"
-              :value="calculateAverage(totalPercentagesList.mainFilledPercents)"
+              :value="totalPercentagesList.main"
                 :precision="2"
                 suffix="%"
                 :value-style="{ color: '#3f8600' }"
@@ -42,10 +42,10 @@
             </a-card>
           </a-col>
           <a-col :span="10">
-            <a-card v-if=" totalPercentagesList && totalPercentagesList.subFilledPercents">
+            <a-card v-if=" totalPercentagesList && totalPercentagesList.sub">
               <a-statistic
                 title="дополнительной информации"
-                :value="calculateAverage(totalPercentagesList.subFilledPercents)"
+                :value="totalPercentagesList.sub"
                 :precision="2"
                 suffix="%"
                 class="demo-class"
@@ -70,7 +70,7 @@
 <script lang="ts" setup>
 import type { IDashboard, IFormState, IPercentages, IValue } from '~/interface';
 import type { ApexOptions } from 'apexcharts';
-import { calculateAverage, calculateFilledPercentage } from '~/service/statictis';
+import { calculateAverage, calculateCompletionPercentage } from '~/service/statictis';
 
 
 const percentages = ref<IDashboard[]>([])
@@ -162,7 +162,7 @@ onMounted(() => {
         value: e.key
       }
     }).filter(e => e.label !== 'ФИО клиента' && e.label !== 'Должность' && e.label !== 'Количество детей') as IValue[]
-    totalPercentagesList.value = calculateFilledPercentage(tableStore.list)      
+    totalPercentagesList.value = calculateCompletionPercentage(tableStore.list)      
 })
 </script>
 <style lang="css" scoped>
