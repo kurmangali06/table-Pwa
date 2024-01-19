@@ -32,6 +32,8 @@ import {
   DesktopOutlined,
 } from '@ant-design/icons-vue';
 import type { MenuProps, ItemType } from 'ant-design-vue';
+import type { IListCrieria } from '~/interface';
+import { addNewCriteria } from '~/service/IndexedDBService';
 const state = reactive({
   collapsed: false,
   selectedKeys: ['1'],
@@ -72,6 +74,15 @@ const handleClick: MenuProps['onClick'] = e => {
         name: e.item.name,
     })
 };
+
+const tableStore = useTableStore()
+onBeforeMount(() => {
+  if(tableStore.listCriteria.length) {
+  tableStore.listCriteria.forEach(e => {
+     addNewCriteria(e as IListCrieria)
+  })
+}
+})
 </script>
 <style lang="css">
 .container {

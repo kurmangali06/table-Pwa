@@ -16,7 +16,7 @@
                 label="Критерий"
                 >
                 <a-select 
-                :key="`${listMain.length}${tableStore.mainListCrieria.length}${switchByMainOfSub}`"
+                :key="`${listMain.length}${tableStore.listCriteria.length}${switchByMainOfSub}`"
                 v-model:value="formStateCriteria.name"
                 :options="listMain" >
                 <template #dropdownRender="{ menuNode: listMain }">
@@ -41,7 +41,7 @@
                     :disabled="!formStateCriteria.name" 
                     v-model:value="formStateCriteria.value" 
                     :options="subList" 
-                    :key="`${listMain.length}${tableStore.mainListCrieria.length}${switchByMainOfSub}`"
+                    :key="`${listMain.length}${tableStore.listCriteria.length}${switchByMainOfSub}`"
                     placeholder="выберите данные с первого списка"
                     notFoundContent="Ничего не найдено">
                     <template #dropdownRender="{ menuNode: subList }">
@@ -94,23 +94,29 @@ const formStateCriteria = reactive({
     newValueSub: ''
 })
 const switchByMainOfSub = ref(true)
-function hide() {
-    emit('update:open', false);
-}
 const itemsMain = ref<{value: string}[]>([]);
 const itemsSub =  ref<{value: string}[]>([]);
 const subList = ref<{value: string}[]>([]);
 const listNewKeys = ref<string[]>([])
+
 const listMain = computed(() => {    
    return  switchByMainOfSub.value ?  itemsMain.value : itemsSub.value
 })
+
+function hide() {
+    emit('update:open', false);
+}
+
+// поиск по главном селектору так как него может быть list для  выпадающего списка
 function seachElementByName(name: string) {
     formStateCriteria.value = ''
-    const findElement = tableStore.mainListCrieria.find((e) => e.label === name)
+    const findElement = tableStore.listCriteria.find((e) => e.label === name)
     if(findElement && findElement.list)
     subList.value = findElement.list
      
 }
+
+// добавление кретерий в форму
 function addItem(actions: 'main' | 'sub') {
     if(actions === 'sub') {
         seachElementByName(formStateCriteria.name);
@@ -135,16 +141,22 @@ function addItem(actions: 'main' | 'sub') {
             title: formStateCriteria.newValueMian,
             dataIndex: checkKey(newCriteriaSub.key, 'sub') 
         };
-   
+   //зависмости от чекбокса добавление происходит в основ или доп 
         if(switchByMainOfSub.value) {
+            // добавление в заголовок нового кретерия в таблицы
             tableStore.setColumns(newColumn);
+              // добавление в ключей для доп логики
             tableStore.setMainKeys(newColumn.dataIndex);
+            // добавление в текущий список в селекторе
             itemsMain.value.push({ value: formStateCriteria.newValueMian });
             const keyNew = checkKey(newCriteria.key, 'main');
+               // добавление в валидация обязательную форму
             tableStore.updatedRules(keyNew);
             listNewKeys.value.push(newCriteria.key);
+            // добавление в форму нового ключа
             tableStore.updatedForm(keyNew, 'main');
         } else {
+            //аналогично в доп информацию только тут нету валидаций
             tableStore.setColumns(newColumnSub);
             const keyNew = checkKey(newCriteriaSub.key, 'sub');        
             itemsSub.value.push({ value: formStateCriteria.newValueMian });
@@ -168,12 +180,14 @@ watch(() => formStateCriteria.name, () => {
 watch(() => switchByMainOfSub.value, () => {
     formStateCriteria.name = ''
 })
+
+// да не правильно....нельзя так делать на сохарнения не происходит основная логика !! фу быть таким
 function save() {
  hide() 
 }
-
+// отфильтровуем field оставляем только selects
 function fetchList() {    
-    tableStore.listCrieria.forEach(t => {    
+    tableStore.listCriteria.forEach(t => {    
         if(tableStore.mainKey.filter(e => e !== 'fullName' && e !== 'position').includes(checkKey(t.key, 'main'))) {
             itemsMain.value.push({ value : t.label})            
         }

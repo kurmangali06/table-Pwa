@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { reactive } from 'vue';
-import type { IColumn, IFormState, IListCrieria, IValue, RulesRefType } from '~/interface';
+import type { IColumn, IFormState, IListCrieria, ISearchForm, IValue, RulesRefType } from '~/interface';
 
 const STORE_ID = 'table'
 
@@ -15,7 +15,8 @@ export const useTableStore = defineStore(STORE_ID, {
         education: '',
         fieldOfActivity: '',
         experience: '',
-        placeOfBirth: ''
+        placeOfBirth: '',
+        placeOfInfluence: ''
     },
     id: '',
     sub: {
@@ -92,9 +93,30 @@ export const useTableStore = defineStore(STORE_ID, {
               required: true,
               message: 'Пожалуйста, выберите из списка!'
             }, 
-      ]
+      ],
+      placeOfInfluence:[
+        {
+            required: true,
+            message: 'Пожалуйста, выберите из списка!'
+          },
+           
+    ],
+    zhus:[
+      {
+          required: true,
+          message: 'Пожалуйста, выберите из списка!'
+        },
+         
+    ],
+    age:[
+      {
+          required: true,
+          message: 'Пожалуйста, выберите из списка!'
+        },
+         
+    ]
     } as RulesRefType,
-    mainKeys: ['fullName', 'position', 'gender', 'nationality', 'education', 'fieldOfActivity', 'experience', 'placeOfBirth'],
+    mainKeys: ['fullName', 'age', 'position', 'gender', 'nationality', 'education', 'fieldOfActivity', 'experience', 'placeOfBirth', 'placeOfInfluence', 'zhus'],
     subKeys: ['academicDegree', 'fameLevel', 'levelOfProfessionalism', 'reputation', 'managersExperience', 'religiousBeliefs', 'levelOfNotedAchievements', 'familyStatus', 'amountOfChildren', 'scopeOfVision', 'leadershipType', 'militaryService'],
     columnsTitle : [
       {
@@ -114,6 +136,10 @@ export const useTableStore = defineStore(STORE_ID, {
         dataIndex: 'nationality',
       },
       {
+        title: 'Возраст',
+        dataIndex: 'age',
+      },
+      {
           title: 'Образование',
           dataIndex: 'education',
       },
@@ -128,6 +154,14 @@ export const useTableStore = defineStore(STORE_ID, {
       {
           title: 'Место рождения',
           dataIndex: 'placeOfBirth',
+      },
+      {
+        title: 'Место влияния',
+        dataIndex: 'placeOfInfluence',
+      },
+      {
+        title: 'Жуз/Ру',
+        dataIndex: 'zhus',
       },
       {
           title: 'Ученая степень',
@@ -178,13 +212,15 @@ export const useTableStore = defineStore(STORE_ID, {
           dataIndex: 'militaryService',
       },
     ],
-    mainListCrieria: [
+    mainListCriteria: [
         {
             label: 'ФИО клиента',
             key: 'main.fullName',
+            hasChildren:false
         },
         {
             label: 'Должность',
+            hasChildren:false,
             key: 'main.position',
         },
        {
@@ -198,6 +234,7 @@ export const useTableStore = defineStore(STORE_ID, {
        {
         label: 'Национальность',
         key: 'main.nationality',
+        hasChildren:false,
         list: [
             {value:'Казах' },
             {value:'Русский' },
@@ -212,8 +249,20 @@ export const useTableStore = defineStore(STORE_ID, {
         ]
        },
        {
+        label: 'Возраст',
+        key: 'main.age',
+        hasChildren:false,
+        list: [
+            {value:'Молодой (18-44 лет)' },
+            {value:'Средний (45-59 лет)' },
+            {value:'Пожилой (60-74 лет)' },
+            {value:'75 лет и старше' },
+        ]
+       },
+       {
         label: 'Образование',
         key: 'main.education',
+        hasChildren:false,
         list: [
             {value:'Западное' },
             {value:'Российское' },
@@ -227,6 +276,7 @@ export const useTableStore = defineStore(STORE_ID, {
        {
         label: 'Сфера деятельности',
         key: 'main.fieldOfActivity',
+        hasChildren:false,
         list: [
             {value:'Экономика/бизнес' },
             {value:'Культура/спорт' },
@@ -237,6 +287,7 @@ export const useTableStore = defineStore(STORE_ID, {
        {
         label: 'Опыт работы',
         key: 'main.experience',
+        hasChildren:false,
         list: [
             {value:'Госслужба' },
             {value:'Квазигос' },
@@ -247,6 +298,7 @@ export const useTableStore = defineStore(STORE_ID, {
        {
         label: 'Место рождения',
         key: 'main.placeOfBirth',
+        hasChildren:false,
         list: [
             {value:'Север' },
             {value:'Юг' },
@@ -257,8 +309,140 @@ export const useTableStore = defineStore(STORE_ID, {
         ]
        },
        {
+        label: 'Место влияния',
+        key: 'main.placeOfInfluence',
+        hasChildren:false,
+        list: [
+            {value:'Север' },
+            {value:'Юг' },
+            {value:'Запад' },
+            {value:'Восток' },
+            {value:'Центр' },
+            {value:'Зарубеж' },
+            {value: 'Все регионы'}
+        ]
+       },
+       {
+        label: 'Жуз/Ру',
+        key: 'main.zhus',
+        hasChildren:true,
+        list: [
+            { value:'Старший', 
+              children : [
+                {
+                  value: 'Албан',
+                },
+                {
+                  value: 'Дулат',
+                },
+                {
+                  value: 'Суан',
+                },
+                {
+                  value: 'Шапрашты',
+                },
+                {
+                  value: 'Жалайыр',
+                },
+                {
+                  value: 'Сары-уйсун',
+                },
+                {
+                  value: 'Ысты',
+                },
+                {
+                  value: 'Ошакты',
+                },
+                {
+                  value: 'Сиргели',
+                },
+                {
+                  value: 'Шанышкылы',
+                },
+                {
+                  value: 'Канлы',
+                },
+                {
+                  value: 'Шакшам',
+                },
+              ]
+            },
+            {
+              value:'Средний' ,
+              children: [
+                {
+                  value: 'Аргын',
+                },
+                {
+                  value: 'Кыпшак',
+                },
+                {
+                  value: 'Найман',
+                },
+                {
+                  value: 'Конырат',
+                },
+                {
+                  value: 'Керей',
+                },
+                {
+                  value: 'Уак',
+                },              
+              ] 
+             },
+            {
+              value:'Младший',
+              children: [
+                {
+                  value: 'Алимулы',
+                },
+                {
+                  value: 'Шекты',
+                },
+                {
+                  value: 'Шомекей',
+                },
+                {
+                  value: 'Кете',
+                },
+                {
+                  value: 'Каракесек',
+                },
+                {
+                  value: 'Карасакал',
+                },
+                {
+                  value: 'Жетыру',
+                },
+                {
+                  value: 'Табын',
+                },
+                {
+                  value: 'Жагалбайлы',
+                },
+                {
+                  value: 'Кереит',
+                },
+                {
+                  value: 'Тама',
+                },
+                {
+                  value: 'Телеу',
+                },
+                {
+                  value: 'Кердери',
+                },
+                {
+                  value: 'Рамадан',
+                },
+              ]
+            },
+        ]
+       },
+       {
         label: 'Ученая степень',
         key: 'sub.academicDegree',
+        hasChildren:false,
         list: [
             {value:'Да' },
             {value:'Нет' },
@@ -267,6 +451,7 @@ export const useTableStore = defineStore(STORE_ID, {
        {
         label: 'Уровень известности',
         key: 'sub.fameLevel',
+        hasChildren:false,
         list: [
             {value:'Общеизвестный' },
             {value:'Неизвестный' },
@@ -276,6 +461,7 @@ export const useTableStore = defineStore(STORE_ID, {
        {
         label: 'Уровень профессионализма',
         key: 'sub.levelOfProfessionalism',
+        hasChildren:false,
         list: [
             {value:'Международный' },
             {value:'Национальный' },
@@ -285,6 +471,7 @@ export const useTableStore = defineStore(STORE_ID, {
        {
         label: 'Репутация',
         key: 'sub.reputation',
+        hasChildren:false,
         list: [
             {value:'Безупречная' },
             {value:'Скандальная/дискредитированная' },
@@ -293,6 +480,7 @@ export const useTableStore = defineStore(STORE_ID, {
        {
         label: 'Опыт руководителя',
         key: 'sub.managersExperience',
+        hasChildren:false,
         list: [
             {value:'Высшее звено' },
             {value:'Среднее звено' },
@@ -302,6 +490,7 @@ export const useTableStore = defineStore(STORE_ID, {
        {
         label: 'Религиозные убеждения',
         key: 'sub.religiousBeliefs',
+        hasChildren:false,
         list: [
             {value:'Традиционные' },
             {value:'Радикальные' },
@@ -311,6 +500,7 @@ export const useTableStore = defineStore(STORE_ID, {
        {
         label: 'Уровень отмеченных достижений',
         key: 'sub.levelOfNotedAchievements',
+        hasChildren:false,
         list: [
             {value:'Городской/районный' },
             {value:'Областной' },
@@ -321,10 +511,12 @@ export const useTableStore = defineStore(STORE_ID, {
        {
         label: 'Количество детей',
         key: 'sub.amountOfChildren',
+        hasChildren:false,
        },
        {
         label: 'Масштаб видения',
         key: 'sub.scopeOfVision',
+        hasChildren:false,
         list: [
             {value:'Стратегическое (глобальное)' },
             {value:'Тактическое' },
@@ -334,6 +526,7 @@ export const useTableStore = defineStore(STORE_ID, {
        {
         label: 'Тип лидерства',
         key: 'sub.leadershipType',
+        hasChildren:false,
         list: [
             {value:'Харизматический' },
             {value:'Традиционный' },
@@ -341,8 +534,9 @@ export const useTableStore = defineStore(STORE_ID, {
         ]
        },
        {
-        label: 'Отношение к воинской служба',
+        label: 'Отношение к воинской службе',
         key: 'sub.militaryService',
+        hasChildren:false,
         list: [
             {value:'Служил' },
             {value:'Не служил' },
@@ -350,9 +544,9 @@ export const useTableStore = defineStore(STORE_ID, {
             {value:'Участие в военных действиях' },
         ]
        },
-    ],
+    ] as IListCrieria[],
     listTable : [] as IFormState[],
-    searhForm: {} as IFormState
+    searhForm: {} as ISearchForm
     
   }),
   getters: {
@@ -361,7 +555,7 @@ export const useTableStore = defineStore(STORE_ID, {
     mainKey: (state) => state.mainKeys,
     subKey: (state) => state.subKeys,
     columns: (state) => state.columnsTitle,
-    listCrieria: (state) => state.mainListCrieria,
+    listCriteria: (state) => state.mainListCriteria,
     list: (state) => state.listTable,
     searchForm: (state) => state.searhForm
   },
@@ -404,17 +598,17 @@ export const useTableStore = defineStore(STORE_ID, {
       this.columnsTitle.push(newColum)
     },
     addCriteria(newCriteria: IListCrieria) {
-      this.mainListCrieria.push(newCriteria)
+      this.listCriteria.push(newCriteria)
     },
     addListCriteria(criteria: string, list: IValue) {
-      const criteriaIndex = this.mainListCrieria.findIndex(e => e.label === criteria);
+      const criteriaIndex = this.listCriteria.findIndex(e => e.label === criteria);
       if (criteriaIndex !== -1) {
-        if (Array.isArray(this.mainListCrieria[criteriaIndex].list)) {
+        if (Array.isArray(this.listCriteria[criteriaIndex].list)) {
           console.log(list);
           
-          this.mainListCrieria[criteriaIndex].list?.push(list)
+          this.listCriteria[criteriaIndex].list?.push(list)
         } else {
-          this.mainListCrieria[criteriaIndex].list = [list];
+          this.listCriteria[criteriaIndex].list = [list];
         }
       }
 
@@ -422,7 +616,7 @@ export const useTableStore = defineStore(STORE_ID, {
     setTable(newList: IFormState[]) {
       this.listTable = newList
     },
-    setSeacrhForm(val: IFormState) {
+    setSeacrhForm(val: ISearchForm) {
       this.searhForm = val
     }
   },

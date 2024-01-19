@@ -1,13 +1,18 @@
 <template>
-    <div class="table">
+    <div >
         <ConfigProvider :locale="ruRU">
           <a-table 
             :dataSource="list" :columns="columns"  
-            :scrollToFirstRowOnChange="true" 
-            :scroll="{x :100}" 
+            :scroll="{ x: 2800, y: 650 }"
+            class="table"
             bordered  
             @change="changePage"
             :pagination="{ pageSize: pageSize, position:['bottomCenter'], pageSizeOptions: ['10', '20', '50', '100'] }" >
+            <template #headerCell="{ column, title}">
+              <div class="titleTable">
+                {{ title  }} 
+              </div>
+            </template>
             <template #emptyText>
               <a-empty description="Данных нет" />
             </template>
@@ -67,7 +72,7 @@
                 {{ record.sub.managersExperience }}
               </template>
               <template v-else-if="column.dataIndex === 'religiousBeliefs'">
-                {{ record.sub.managersExperience }}
+                {{ record.sub.religiousBeliefs }}
               </template>
               <template v-else-if="column.dataIndex === 'levelOfNotedAchievements'">
                 {{ record.sub.levelOfNotedAchievements }}
@@ -119,18 +124,26 @@ const props = defineProps({
 })
 const pageSize = ref(10)
 function editModal(value: any) {
-    emit('editModal', value)
+      emit('editModal', value)
 }
 
 function changePage(e:any) {
   pageSize.value = e.pageSize
 }
 </script>
-<style lang="css" scoped>
+<style lang="css" >
 .truncate {
     width: 200px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .table {
+    position: relative;
+  }
+  .titleTable {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
 </style>

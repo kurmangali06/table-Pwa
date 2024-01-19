@@ -18,12 +18,32 @@
                             :label="item.label"
                             :rules="tableStore.stateRef[checkKey(item.key, 'main')]"
                              >
-                            <BaseSelect 
-                                v-if="item.list" 
-                                :class="{ 'readOnly': props.mode === 'viewing' }" 
-                                :show-search="props.mode === 'edit'"
-                                v-model:value="formState.main[checkKey(item.key, 'main')]" 
-                                :options-list="item.list" placeholder="" />
+                             <template v-if="item.list">
+                                <div v-if="item.hasChildren">
+                                    <a-tree-select
+                                        v-model:value="formState.main[checkKey(item.key, 'main')]" 
+                                        show-search
+                                        style="width: 100%"
+                                        placeholder="Please select"
+                                        allow-clear
+                                        tree-default-expand-all
+                                        :tree-data="item.list"
+                                        tree-node-filter-prop="label"
+                                        >
+                                        <template #title="{ value: val }">
+                                           {{ val }}
+                                          </template>
+                                    </a-tree-select>
+                                </div>
+                                <BaseSelect 
+                                     v-else
+                                    :class="{ 'readOnly': props.mode === 'viewing' }" 
+                                    :show-search="props.mode === 'edit'"
+                                    v-model:value="formState.main[checkKey(item.key, 'main')]" 
+                                    :options-list="item.list" placeholder="" />
+                               
+                             </template>
+                         
                             <a-input v-else :readonly="props.mode === 'viewing'" v-model:value="formState.main[checkKey(item.key, 'main')]"  />
                             <span v-if="errorMessages(checkKey(item.key, 'main'))"  style="color: red;">{{errorMessages(checkKey(item.key, 'main')) }}</span> 
                     </a-form-item> 
@@ -60,14 +80,17 @@
                 <a-button type="default"  class="btn" @click="hide">Отмена</a-button>
                 <a-button type="primary" class="btn" @click="addArchive">Перенести в архив</a-button>
                 <a-button type="primary" @click="printPage">Скачать PDF</a-button>
-             </a-form-item>  
+             </a-form-item>
+             <a-form-item v-else-if="props.mode === 'viewing'" :wrapper-col="{ offset:10, span: 24 }" style="margin-top: 10px;">
+                <a-button type="primary" class="btn" @click="addActive">Перенести в активные</a-button>
+             </a-form-item>    
           </template>
     </BaseModal>
     <ModalAddCriteria v-if="criteriaShow" v-model:open="criteriaShow" />
 </template>
 <script setup lang="ts">
 import { computed } from 'vue';
-import { addDataToArchive, addDataToIndexedDB, updateDataInIndexedDB } from '@/service/IndexedDBService'
+import { addDataToArchive, addDataToIndexedDB, deleteoArchive, updateDataInIndexedDB } from '@/service/IndexedDBService'
 import {  checkKey, getRandomId, translateName } from '@/service/helper';
 import {type IFormState, type IListCrieria} from '@/interface/index'
 import { Form } from 'ant-design-vue';
@@ -90,13 +113,6 @@ const dateInfoRef = ref();
 const emit = defineEmits(['update:open'])
 const tableStore = useTableStore()
 const errList = ref<any[]>([])
-const errorMessages = computed(() => {
-    return(err: string)  => {
-    const findItem = errList.value.find((e:any) => e.name === err)
-        if(findItem)
-            return findItem.errors[0]
-    }
-})
 const useForm = Form.useForm;
 const formState = reactive<IFormState>({
     main: {
@@ -107,7 +123,10 @@ const formState = reactive<IFormState>({
         education: '',
         fieldOfActivity: '',
         experience: '',
-        placeOfBirth: ''
+        placeOfBirth: '',
+        placeOfInfluence: '',
+        zhus: '',
+        age: ''
     },
     id: '',
     sub: {
@@ -131,6 +150,15 @@ const mainCriteria  = ref<IListCrieria[]>([])
 const subCriteria  = ref<IListCrieria[]>([])
 const criteriaShow = ref(false)
 const activeKey = ref(['0']);
+
+// валадция ошибок
+const errorMessages = computed(() => {
+    return(err: string)  => {
+    const findItem = errList.value.find((e:any) => e.name === err)
+        if(findItem)
+            return findItem.errors[0]
+    }
+})
 const titleModal = computed(() => {
    return  props.info ? 'Редактирование данных' : 'Добавление данных' 
 })
@@ -142,7 +170,7 @@ const { resetFields,   } = useForm(formState.main, tableStore.stateRef, {
     validateOnRuleChange: true
 });
 const pdfmake = usePDF()
-
+// печать  в пдф
 function printPage() {
     const mainInfoByPdf = []
     const subInfoByPdf = []
@@ -229,31 +257,9 @@ async function onSubmit(){
   }
 
     
-//   validate()
-//   .then(async() => {
-//     if(props.info) {
-//         await updateDataInIndexedDB(props.info.id, body);
-//         message.success('Успешно изменено');
-//     } else {
-//         body.id =  getRandomId()        
-//         await addDataToIndexedDB(body);
-//         message.success('Успешно добавлено');
-//     }
-//         hide()
-//         resetFields()
-//     })
-//     .catch(err => {
-//       if('errorFields' in err) {
-//         console.log(errList);
-        
-//         errList.value = err.errorFields
-//         message.error('заполните все обязательные поля');
-//       }
-
-//     });
 
 };
-
+// добавление в архив
 async function addArchive() {
     const body = {
     ...formState,
@@ -261,6 +267,17 @@ async function addArchive() {
     body.status = 'archival'
     await addDataToArchive(body);
         message.success('Успешно добавлено в архив');
+    hide()
+}
+// добавление в активные 
+async function addActive() {
+    const body = {
+    ...formState,
+    }
+    await deleteoArchive(body.id)
+    body.status = 'active'
+    await addDataToIndexedDB(body);
+        message.success('Успешно добавлено в активные');
     hide()
 }
 function hide() {
@@ -271,7 +288,7 @@ function hide() {
 function openModal() {
     criteriaShow.value = true
 }
-
+// динамические добавление пропосов связанно с тем что кретерий могут быть новые
 function fetchProps() { 
        const mainList = Object.entries(props.info.main)
        const subList = Object.entries(props.info.sub)
@@ -286,6 +303,7 @@ function fetchProps() {
                 formState.main[e[0]] = e[1]
             }
        })
+
        subList.forEach(e => {
         const findElement = formStateSubList.find(t => t[0] === e[0])
             if(findElement) {
@@ -294,8 +312,11 @@ function fetchProps() {
                 formState.sub[e[0]] = e[1]
             }
        })
-    mainCriteria.value = tableStore.mainListCrieria.filter(item => item.key.startsWith('main.')) as IListCrieria[];
-    subCriteria.value = tableStore.mainListCrieria.filter(item => item.key.startsWith('sub.')) as IListCrieria[]; 
+       formState.id = props.info.id
+       console.log(formState);
+       
+    mainCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('main.')) as IListCrieria[];
+    subCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('sub.')) as IListCrieria[]; 
        
 }
 watch(() => props.info,() => {
@@ -303,12 +324,10 @@ watch(() => props.info,() => {
         fetchProps()
     }
 })
-
+// добаление новых кретерий
 watch(() => tableStore.formState, (newFormState) => {
     // Глубокое копирование для обновления вложенных объектов
     const updatedFormState = lodash.cloneDeep(newFormState);
-    console.log(updatedFormState);
-    
     const mainList = Object.entries(updatedFormState.main)
     const subList = Object.entries(updatedFormState.sub)
     const formStateList = Object.entries(formState.main)
@@ -322,6 +341,7 @@ watch(() => tableStore.formState, (newFormState) => {
                 formState.main[e[0]] = e[1]
             }
        })
+       formState.id = props.info?.id ? props.info.id: ''
        subList.forEach(e => {
         const findElement = formStateSubList.find(t => t[0] === e[0])
             if(findElement) {
@@ -330,8 +350,8 @@ watch(() => tableStore.formState, (newFormState) => {
                 formState.sub[e[0]] = e[1]
             }
        })
-    mainCriteria.value = tableStore.mainListCrieria.filter(item => item.key.startsWith('main.')) as IListCrieria[];
-    subCriteria.value = tableStore.mainListCrieria.filter(item => item.key.startsWith('sub.')) as IListCrieria[]; 
+    mainCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('main.')) as IListCrieria[];
+    subCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('sub.')) as IListCrieria[]; 
     console.log(formState);
     
 }, {

@@ -15,14 +15,14 @@
           <div style="height: 10px;"></div>
             <a-button type="default"  :disabled="loading" @click="openModal">Создать</a-button>
             <a-button type="default" :disabled="loading" style="margin-left: 10px;" @click="openSearhModal()">Поиск по критериям</a-button>
-            <a-button type="primary"  :disabled="loading" style="margin-left: 10px;" @click="exportToExcel">Скачать в excell</a-button>
+            <a-button type="primary"  :disabled="loading" style="margin-left: 10px;" @click="exportToExcel">Скачать в Excel </a-button>
           </div>
   
           <div class="clearfix">
               <a-upload :accept="rulesByFile" :file-list="fileList" :before-upload="beforeUpload" @remove="handleRemove">
                 <a-button>
                   <upload-outlined></upload-outlined>
-                  Загрузить Excell
+                  Загрузить Excel
                 </a-button>
               </a-upload>
               <a-button
@@ -83,7 +83,7 @@
 import {  getAllDataFromIndexedDB,clearIndexedDB, arrayLength, addDataToIndexedDB, getAllStatusArchival } from '@/service/IndexedDBService'
 import { ref, onMounted } from 'vue';
 import addDate from '~/components/modal/addDate.vue';
-import {type IFormState} from '@/interface/index'
+import {type IFormState, type ISearchForm} from '@/interface/index'
 import {  rulesByFile } from '~/service/table';
 import { checkKeyFormObject, getRandomId, transformExcellToArray, translateName } from '~/service/helper';
 import { Excel } from "antd-table-saveas-excel";
@@ -109,6 +109,9 @@ const searchParamsMain = ref<string[][]>([])
 const router = useRouter();
 const route = useRoute();
 const tableStore = useTableStore()
+
+
+// запросы в бд
 function getDate(filterData?: any) {
   loading.value = true
   const resPromise = getAllDataFromIndexedDB(filterData)
@@ -122,7 +125,7 @@ function getDate(filterData?: any) {
   })
   tableStore.setTable(list.value)
   archivalData.then((res) => {
-    listArchive.value =  res.map((e: IFormState) => {
+    listArchive.value =  res.map((e: IFormState) => {      
     return {
       key: e.id,
       ...e
@@ -141,6 +144,24 @@ async function clearDate() {
   count.value = 0
   getDate()
 }
+
+// взаимодествие с модалками
+function openModal() {
+  currentItem.value = null
+  showModal.value = true;
+}
+function editModal(value: any) {
+  currentItem.value = value
+  showModal.value = true;
+}
+function editModalArchive(val: any) {
+  currentItemArchive.value = val
+  showModalArchive.value = true;
+}
+function openSearhModal() {
+  showSearch.value = true
+}
+// РАБОТА С ФАЙЛОМИ
 function exportToExcel() {
   const excelList = list.value.map(e => {
     return {
@@ -158,21 +179,7 @@ function exportToExcel() {
             .saveAs("Excel.xlsx");
 }
 
-function openModal() {
-  currentItem.value = null
-  showModal.value = true;
-}
-function editModal(value: any) {
-  currentItem.value = value
-  showModal.value = true;
-}
-function editModalArchive(val: any) {
-  currentItemArchive.value = val
-  showModalArchive.value = true;
-}
-function openSearhModal() {
-  showSearch.value = true
-}
+
 const handleFile = (file: File) => {  
   // Показать индикатор загрузки
   const hideLoading = message.loading('Внимание! Дубликаты не будут добавлены!', 0);
@@ -246,9 +253,9 @@ const beforeUpload: UploadProps['beforeUpload'] = file => {
   return false;
 };
 
+
+// ПОИСК
 function getParams(e: IFormState) { 
-  console.log(e);
-  
   activeKey.value = '1'
   let mainParams: string[][] = []
   let subParams: string[][] = []
@@ -278,11 +285,6 @@ function getParams(e: IFormState) {
     filterData(searchParamsMain.value)
 
 }
-
-
-function handleClose(removedTag: string) {
-    searchParamsMain.value =  searchParamsMain.value.filter(e => e[1] !== removedTag)
-}
 function onSearch(searchValue: string) {
   if(!searchValue)
    getDate()
@@ -290,6 +292,15 @@ function onSearch(searchValue: string) {
   count.value = list.value.length
 }
 
+function handleClose(removedTag: string) {
+    searchParamsMain.value =  searchParamsMain.value.filter(e => e[1] !== removedTag)
+}
+
+function fetchSearchParams(form: ISearchForm) {
+  const searchList = Object.entries(form).filter(e => e[1] !== '' && e[1] !== undefined);
+  searchParamsMain.value = searchList
+
+}
 watch(() => searchParamsMain.value, () => {
   filterData(searchParamsMain.value)
 })
@@ -299,6 +310,10 @@ watch(() => showModal.value, () => {
     getDate(searchFilterParams.value)
 })
 
+watch(() => showModalArchive.value, () => {
+  if(showModalArchive.value === false)
+    getDate(searchFilterParams.value)
+})
 
 
 watch(() => activeKey.value,() => {
@@ -320,7 +335,7 @@ async function filterData(main: string[][]) {
     }
   }, {})
   searchFilterParams.value = filterParam
-  tableStore.setSeacrhForm(filterParam as IFormState)
+  tableStore.setSeacrhForm(filterParam as ISearchForm)
    getDate(filterParam)
    
 }
@@ -328,7 +343,7 @@ async function filterData(main: string[][]) {
 onMounted(() => {
   if(tableStore.list.length) {
     list.value = tableStore.list
-    getParams(tableStore.searchForm)
+    fetchSearchParams(tableStore.searchForm)
   } else {
     getDate()
   }

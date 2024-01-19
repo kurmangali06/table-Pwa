@@ -4,6 +4,7 @@
         show-search
         :placeholder="placeholder"
         :options="optionsList"
+        style="width: 100%;"
         @change="selectedValue"
         notFoundContent="Ничего не найдено"
         >

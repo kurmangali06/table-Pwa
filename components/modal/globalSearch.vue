@@ -12,7 +12,29 @@
                         <a-form-item
                             :label="item.label"
                         >
-                            <BaseSelect v-if="item.list" v-model:value="formState.main[checkKey(item.key, 'main')]" :options-list="item.list" placeholder="" />
+                        <template v-if="item.list">
+                            <div v-if="item.hasChildren">
+                                <a-tree-select
+                                    v-model:value="formState.main[checkKey(item.key, 'main')]" 
+                                    show-search
+                                    style="width: 100%"
+                                    placeholder="Please select"
+                                    allow-clear
+                                    tree-default-expand-all
+                                    :tree-data="item.list"
+                                    tree-node-filter-prop="label"
+                                    >
+                                    <template #title="{ value: val }">
+                                       {{ val }}
+                                      </template>
+                                </a-tree-select>
+                            </div>
+                            <BaseSelect 
+                                 v-else
+                                v-model:value="formState.main[checkKey(item.key, 'main')]" 
+                                :options-list="item.list" placeholder="" />
+                           
+                         </template>
                             <a-input v-else v-model:value="formState.main[checkKey(item.key, 'main')]"  />
                     </a-form-item> 
                       
@@ -62,7 +84,9 @@ main: {
     education: '',
     fieldOfActivity: '',
     experience: '',
-    placeOfBirth: ''
+    placeOfBirth: '',
+    placeOfInfluence: '',
+    zhus: ''
 },
 id: '',
 sub: {
@@ -116,12 +140,13 @@ watch(() => props.params,() => {
     if(props.params)
      fetchProps()
 })
+console.log(tableStore.listTable);
 onMounted(() => {
     if(props.params) {
         fetchProps()
     }
-    mainCriteria.value = tableStore.mainListCrieria.filter(item => item.key.startsWith('main.')).filter((e) => e.list?.length) as IListCrieria[];
-    subCriteria.value = tableStore.mainListCrieria.filter(item => item.key.startsWith('sub.')).filter((e) => e.list?.length) as IListCrieria[];
+    mainCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('main.')).filter((e) => e.list?.length) as IListCrieria[];
+    subCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('sub.')).filter((e) => e.list?.length) as IListCrieria[];
 })
 </script>
 <style lang="css" scoped>

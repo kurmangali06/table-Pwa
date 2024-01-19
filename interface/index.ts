@@ -7,6 +7,9 @@ export interface IMainInfo {
   fieldOfActivity: string
   experience: string
   placeOfBirth: string
+  placeOfInfluence: string
+  zhus: string
+  age: string
   [key: string]: any
 }
 export interface ISubInfo {
@@ -32,10 +35,13 @@ export interface IFormState {
     status: 'active' | 'archival'
     [key: string]: any
   }
+export interface ISearchForm extends IMainInfo, ISubInfo {
 
+}
   export interface IValue {
     value: string
     label: string
+    children?:IValue[]
   }
 
   export interface IPercentages {
@@ -53,6 +59,7 @@ export interface IDashboard {
 export interface IListCrieria  {
   label: string
   key: string
+  hasChildren: boolean
   list?: IValue[] 
 }
 export interface IColumn {

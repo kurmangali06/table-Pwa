@@ -53,7 +53,13 @@ export function translateName(name: string): string {
             case 'leadershipType': 
              return 'Тип лидерства';
             case 'militaryService': 
-             return 'Отношение к воинской служба';
+             return 'Отношение к воинской службе';
+            case 'placeOfInfluence':
+                return 'Место влияния'
+            case 'zhus':
+                    return 'Жуз/Ру'
+            case 'age':
+                    return 'Возраст'
             default: 
                const findElemnt = columnsTitle.find(e => e.dataIndex === name)
                if(findElemnt)
@@ -94,7 +100,7 @@ export function translateRuByEn(name: string): string {
          return 'scopeOfVision ';
         case 'Тип лидерства': 
          return 'leadershipType';
-        case 'Отношение к воинской служба': 
+        case 'Отношение к воинской службе': 
          return 'militaryService';
         case 'ФИО': 
          return 'fullName';
@@ -102,6 +108,13 @@ export function translateRuByEn(name: string): string {
          return 'position';
         case 'Количество детей': 
          return 'amountOfChildren';
+        case 'Место влияния':
+         return 'placeOfInfluence'
+        case 'Жуз':
+        case 'Ру':
+         return 'zhus'
+        case 'Возраст':
+            return 'age'
         default:
             return '';
     }
@@ -144,3 +157,10 @@ export const fieldOfActivityList = [
     {value:'Государство, общество' },
 ]
 
+export function isFormState(obj: any): obj is IFormState {
+    return obj 
+        && 'main' in obj 
+        && 'id' in obj 
+        && 'sub' in obj 
+        && 'status' in obj;
+}

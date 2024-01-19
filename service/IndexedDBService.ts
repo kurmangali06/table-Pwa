@@ -1,11 +1,13 @@
 import Dexie from 'dexie';
-import type { IFormState } from '~/interface';
+import type { IFormState, IListCrieria } from '~/interface';
+import { isFormState } from './helper';
 
 
 
 class MyDatabase extends Dexie {
   myObjectStore: Dexie.Table<IFormState, number>;
   archiveStore: Dexie.Table<IFormState, number>;
+  listCrieria: Dexie.Table<IListCrieria, number>;
   constructor() {
     super('myDatabase');
 
@@ -16,21 +18,26 @@ class MyDatabase extends Dexie {
     this.version(2).stores({
       archiveStore: '++id, name' 
     });
+    this.version(3).stores({
+      listCrieria: '++id, name' 
+    });
 
     // Инициализация хранилища объектов
     this.myObjectStore = this.table('myObjectStore');
     this.archiveStore = this.table('archiveStore');
+    this.listCrieria = this.table('listCrieria');
   }
 }
 
 const db = new MyDatabase();
-function prepareDataForStorage(data: IFormState): IFormState {
-  return JSON.parse(JSON.stringify(data));
+function prepareDataForStorage<T>(data: T): T {
+    return JSON.parse(JSON.stringify(data));
+  
 }
 export const addDataToIndexedDB = async (data: IFormState): Promise<number> => {
   try {
-    const serializableData = prepareDataForStorage(data);
-    const addedItemId = await db.myObjectStore.add(serializableData);
+    const serializableData = prepareDataForStorage<IFormState>(data);
+    const addedItemId = await db.myObjectStore.add(serializableData as IFormState);
     return addedItemId;
   } catch (error) {
     console.error('Error adding object to the store', error);
@@ -41,8 +48,8 @@ export const addDataToIndexedDB = async (data: IFormState): Promise<number> => {
 export const addDataToArchive = async (data: IFormState) => {
   try {
     if (data.status === 'archival') {
-      const serializableData = prepareDataForStorage(data);
-      console.log(serializableData);
+      const serializableData   = prepareDataForStorage<IFormState>(data);
+      console.log(serializableData );
       await db.archiveStore.add(serializableData);
       await deleteDataFromIndexedDB(serializableData.id)
     }
@@ -107,14 +114,29 @@ export const arrayLength = async () => {
 };
 export const updateDataInIndexedDB = async (id: any, newData: IFormState): Promise<void> => {
   try {
-    const serializableData = prepareDataForStorage(newData);
+    const serializableData = prepareDataForStorage<IFormState>(newData);
     await db.myObjectStore.update(id, serializableData);
   } catch (error) {
     console.error('Error updating object in the store', error);
     throw error;
   }
 };
-
-
+export const deleteoArchive = async (id: any) => {
+  try {
+    await db.archiveStore.delete(id);
+    console.log(`Record with id ${id} has been deleted from myObjectStore`);
+  } catch (error) {
+    console.error('Error deleting object from the store', error);
+    throw error;
+  }
+};
+export const getListCriteria = async () => {
+  const result = await db.listCrieria.toArray()
+  return result;
+}
+export const addNewCriteria = async( val: IListCrieria) => {
+  const serializableData = prepareDataForStorage<IListCrieria>(val);
+  await db.listCrieria.add(serializableData)
+}
 
 export default db;

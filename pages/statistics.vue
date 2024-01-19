@@ -12,13 +12,13 @@
         </div>
         <a-card title="Аналитика">
           <a-card-grid 
-            style="width: 33%; text-align: center"
+            style="width: 50%; text-align: center"
              v-for="(item, index) in percentages" :key="item.id">
               <apexchart
-              class="card" 
-              :options="chartOptions(item.result)"
-              :series="percentage(item.result) "
-              type="pie"
+                class="card" 
+                :options="chartOptions(item.result)"
+                :series="percentage(item.result) "
+                type="pie"
             />
           <template v-if="checkAbountZeroSumPercetages(item.result)">
             <a-empty description="поля по данной критерий не заполнены"/>
@@ -85,7 +85,7 @@ function changeSelect(e:any[]) {
     const res:IDashboard[]  = []
     e.forEach(select => {
         let total = tableStore.list.length;     
-        const findElement = tableStore.mainListCrieria.filter(e => e.label !== 'ФИО клиента' && e.label !== 'Должность' && e.label !== 'Количество детей').find(e => e.key === select)
+        const findElement = tableStore.listCriteria.filter(e => e.label !== 'ФИО клиента' && e.label !== 'Должность' && e.label !== 'Количество детей').find(e => e.key === select)
         const listKey = select.split('.')        
         if(findElement && findElement.list) {
           const listBySelectElement = tableStore.list.map(e  =>  e[listKey[0]][listKey[1]]).filter(e => e !== undefined)
@@ -123,7 +123,7 @@ const percentage = computed(() => {
 });
 const checkAbountZeroSumPercetages = computed(() => {
   return(percentage:IPercentages[] ) => {    
-    const totalSum = percentage.reduce((acc, e) => acc + e.percentage, 0)
+    const totalSum = percentage.reduce((acc, e) => acc + (Math.round(e.percentage)), 0)
     if(totalSum === 0)
      return true
     return false
@@ -134,15 +134,16 @@ const chartOptions = computed(() => {
        return {
         chart: {
               type: 'pie',
-              height: 550,
-              width: 550,
+              width: 400,
+              height: 400,
             },
             labels:percentage.map((e:any) => e.value),
             responsive: [{
-              breakpoint: 480,
+              breakpoint: 400,
               options: {
-                chart: {
-                  width: 400
+                chart: {  
+                  width: 400,
+                  height: 400,
                 },
                 legend: {
                   position: 'bottom'
@@ -155,7 +156,7 @@ const chartOptions = computed(() => {
 }) 
 
 onMounted(() => {
-    mainList.value = tableStore.mainListCrieria.map(e => {
+    mainList.value = tableStore.listCriteria.map(e => {
       return {
         label: e.label,
         value: e.key
