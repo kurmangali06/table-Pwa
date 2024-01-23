@@ -71,6 +71,7 @@
 import { checkKey, getRandomId } from '~/service/helper';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import { defineComponent } from 'vue';
+import type { IListCrieria } from '~/interface';
 
 
 const emit = defineEmits(['update:open', 'newRules'])
@@ -107,6 +108,7 @@ function hide() {
     emit('update:open', false);
 }
 
+
 // поиск по главном селектору так как него может быть list для  выпадающего списка
 function seachElementByName(name: string) {
     formStateCriteria.value = ''
@@ -127,12 +129,14 @@ function addItem(actions: 'main' | 'sub') {
     } else {
         const newCriteria = {
             label: formStateCriteria.newValueMian,
-            key: `main.${getRandomId()}`
+            key: `main.${getRandomId()}`,
+            hasChildren: false
         };
-        const newCriteriaSub = {
-            label: formStateCriteria.newValueMian,
-            key: `sub.${getRandomId()}`
-        };
+        const newCriteriaSub:IListCrieria = {
+                label: formStateCriteria.newValueMian,
+                key: `sub.${getRandomId()}`,
+                hasChildren: false
+            };
         const newColumn = {
             title: formStateCriteria.newValueMian,
             dataIndex: checkKey(newCriteria.key, 'main') 

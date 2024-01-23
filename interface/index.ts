@@ -27,7 +27,7 @@ export interface ISubInfo {
   militaryService: string
   [key: string]: any
 } 
-export type KeysOfMainIMainInfo = keyof IMainInfo
+export type KeysOfMainIMainInfo =  keyof IMainInfo
 export interface IFormState {
     main: IMainInfo
     id: string

@@ -1,31 +1,59 @@
 <template>
     <div class="dashboard" v-if="!loading">
-      <BaseSelect
-        v-if="tableStore.list.length && mainList.length"
-        show-search
-        mode="multiple"
-        style="width: 100%;"
-        v-model:value="selectedElement"
-        @change="changeSelect"
-        :options-list="mainList" placeholder="" />
-        <div v-for="(item, index) in percentages" :key="item.id">
-        </div>
-        <a-card title="Аналитика">
+      <a-select
+      style="width: 100%;"
+      v-model:value="selectedElement"
+      :options="mainList"
+      mode="multiple"
+      placeholder="выберите из списка"
+    ></a-select>
+    <a-row>
+      <a-col :span="12" v-for="(item, index) in percentages" :key="item.id">
+        <template  
+          v-if="!checkAbountZeroSumPercetages(item.result)"
+          >
+          <a-card style="height: 450px;" :title="translateName(checkKey(item.id, 'main')) || translateName(checkKey(item.id, 'sub'))" >
+            <apexchart 
+            :id="item.id"
+            :key="item.id"
+            class="card"
+            style="max-height: 300px;"
+            :options="chartOptions(item.result)"
+            :series="percentage(item.result) "
+            type="pie"
+           />
+          </a-card>
+
+      </template>
+       <template v-else>
+        <a-card style="height: 450px" :title="translateName(checkKey(item.id, 'main')) || translateName(checkKey(item.id, 'sub'))" >
+          <a-empty class="card" :description="`поля по данной критерий ${translateName(checkKey(item.id, 'main')) || translateName(checkKey(item.id, 'sub'))} не заполнены `"/>
+        </a-card>
+       </template>
+      </a-col>
+    </a-row>
+        <!-- <a-card title="Аналитика">
           <a-card-grid 
-            style="width: 50%; text-align: center"
-             v-for="(item, index) in percentages" :key="item.id">
-              <apexchart
-                class="card" 
+             v-for="(item, index) in percentages" :key="item.id"
+             style="width: 50%;"
+             >
+             <template  
+             v-if="!checkAbountZeroSumPercetages(item.result)"
+             >
+              <apexchart 
+                :key="item.id"
+                class="card"
                 :options="chartOptions(item.result)"
                 :series="percentage(item.result) "
                 type="pie"
             />
-          <template v-if="checkAbountZeroSumPercetages(item.result)">
-            <a-empty description="поля по данной критерий не заполнены"/>
-          </template>
-          
+           </template>
+            <template v-else>
+              <a-empty class="cards" :description="`поля по данной критерий ${translateName(checkKey(item.id, 'main')) || translateName(checkKey(item.id, 'sub'))} не заполнены `"/>
+            </template>
+            
         </a-card-grid>
-      </a-card>
+      </a-card> -->
       <div class="footer" v-if="tableStore.list.length">
         <a-row :gutter="16">
           <a-col :span="10" >
@@ -71,7 +99,7 @@
 import type { IDashboard, IFormState, IPercentages, IValue } from '~/interface';
 import type { ApexOptions } from 'apexcharts';
 import { calculateAverage, calculateCompletionPercentage } from '~/service/statictis';
-
+import { checkKey, translateName } from '~/service/helper';
 
 const percentages = ref<IDashboard[]>([])
 const totalPercentagesList = ref()
@@ -129,22 +157,21 @@ const checkAbountZeroSumPercetages = computed(() => {
     return false
   }
 })
+watch (() => selectedElement.value, () => {
+  changeSelect(selectedElement.value)
+})
 const chartOptions = computed(() => {
     return(percentage:IPercentages[]): ApexOptions => {
        return {
         chart: {
               type: 'pie',
-              width: 400,
-              height: 400,
+              height: '300px',
+              width: '100%',
+
             },
             labels:percentage.map((e:any) => e.value),
             responsive: [{
-              breakpoint: 400,
               options: {
-                chart: {  
-                  width: 400,
-                  height: 400,
-                },
                 legend: {
                   position: 'bottom'
                 }
@@ -162,7 +189,7 @@ onMounted(() => {
         value: e.key
       }
     }).filter(e => e.label !== 'ФИО клиента' && e.label !== 'Должность' && e.label !== 'Количество детей') as IValue[]
-    totalPercentagesList.value = calculateCompletionPercentage(tableStore.list)      
+    totalPercentagesList.value = calculateCompletionPercentage(tableStore.list)     
 })
 </script>
 <style lang="css" scoped>
@@ -185,6 +212,14 @@ onMounted(() => {
       max-width: 60%;
       width: 50%;
       display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      width: 100%;
+      height: fit-content;
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
     }

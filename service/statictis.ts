@@ -1,32 +1,20 @@
 import type { IFormState } from "~/interface";
 
 export function calculateCompletionPercentage(array: IFormState[]): { main: number, sub: number } {
-  let mainTotal = 0;
-  let mainFilled = 0;
-  let subTotal = 0;
-  let subFilled = 0;
-  console.log(array.length);
-  
+  const keyOfMain = useTableStore().mainKey.length
+  const keyOfSub = useTableStore().subKey.length
+  const averageMain:number[] = []
+  const averageSub:number[] = []
   array.forEach(item => {
-    Object.entries(item.main).forEach(([key, value]) => {
-      if(key)
-        mainTotal++;
-      if (value && value !== '') 
-          mainFilled++;
-
-    });
-
-    Object.entries(item.sub).forEach(([key, value]) => {
-      if(key)
-        subTotal++;
-      if (value && value !== '') 
-        subFilled++;
-    });
+    const valueLengthMain = Object.values(item.main).filter(e => e !== '' || e !== undefined).length
+    const valueLengthSub = Object.values(item.sub).filter(e => e !== '' || e !== undefined).length
+    const percentageMain  = valueLengthMain/keyOfMain * 100 ;
+    const percentageSub = valueLengthSub/keyOfSub * 100;
+    averageMain.push(percentageMain)
+    averageSub.push(percentageSub)
   });
-
-  const mainPercentage = (mainFilled / mainTotal) * 100;
-  const subPercentage = (subFilled / subTotal) * 100;
-
+  const mainPercentage = calculateAverage(averageMain);
+  const subPercentage = calculateAverage(averageSub)  
   return { main: mainPercentage, sub: subPercentage };
 }
 

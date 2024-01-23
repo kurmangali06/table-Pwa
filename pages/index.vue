@@ -83,7 +83,7 @@
 import {  getAllDataFromIndexedDB,clearIndexedDB, arrayLength, addDataToIndexedDB, getAllStatusArchival } from '@/service/IndexedDBService'
 import { ref, onMounted } from 'vue';
 import addDate from '~/components/modal/addDate.vue';
-import {type IFormState, type ISearchForm} from '@/interface/index'
+import {type IColumn, type IFormState, type ISearchForm} from '@/interface/index'
 import {  rulesByFile } from '~/service/table';
 import { checkKeyFormObject, getRandomId, transformExcellToArray, translateName } from '~/service/helper';
 import { Excel } from "antd-table-saveas-excel";
@@ -109,7 +109,7 @@ const searchParamsMain = ref<string[][]>([])
 const router = useRouter();
 const route = useRoute();
 const tableStore = useTableStore()
-
+const titleTableArhive = ref<IColumn[]>([])
 
 // запросы в бд
 function getDate(filterData?: any) {
@@ -132,6 +132,8 @@ function getDate(filterData?: any) {
     } 
     
   })})
+  console.log(listArchive);
+  
 }).catch((error) => {
   console.error('Error:', error);
 }).finally(() => {
@@ -347,6 +349,11 @@ onMounted(() => {
   } else {
     getDate()
   }
+  titleTableArhive.value = tableStore.columnsTitle
+  titleTableArhive.value.push({
+    title: 'Комментарий',
+    dataIndex: 'comments',
+  })
 })
 </script>
 

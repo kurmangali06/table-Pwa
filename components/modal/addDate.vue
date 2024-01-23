@@ -46,9 +46,14 @@
                          
                             <a-input v-else :readonly="props.mode === 'viewing'" v-model:value="formState.main[checkKey(item.key, 'main')]"  />
                             <span v-if="errorMessages(checkKey(item.key, 'main'))"  style="color: red;">{{errorMessages(checkKey(item.key, 'main')) }}</span> 
-                    </a-form-item> 
-                      
+                    </a-form-item>                      
                 </div>
+                <a-form-item
+                    label="Комментарий"
+                    v-if="props.mode === 'viewing'"
+                    >
+                <a-input :readonly="props.mode === 'viewing'" v-model:value="formState.comments" />
+                 </a-form-item>
 
                 <a-collapse v-model:activeKey="activeKey" class="subInfo" collapsible="header">
                     <a-collapse-panel key="1"  header="Дополнительная информация">
@@ -78,14 +83,15 @@
                 <a-button type="primary" @click="openModal"  class="btn">Изменить критерии</a-button>
                 <a-button type="default" @click="onSubmit" class="btn">{{titleBtn}}</a-button>
                 <a-button type="default"  class="btn" @click="hide">Отмена</a-button>
-                <a-button type="primary" class="btn" @click="addArchive">Перенести в архив</a-button>
-                <a-button type="primary" @click="printPage">Скачать PDF</a-button>
+                <a-button  v-if="props.info" type="primary" class="btn" @click="openModalArhive">Перенести в архив</a-button>
+                <a-button v-if="props.info" type="primary" @click="printPage">Скачать PDF</a-button>
              </a-form-item>
              <a-form-item v-else-if="props.mode === 'viewing'" :wrapper-col="{ offset:10, span: 24 }" style="margin-top: 10px;">
                 <a-button type="primary" class="btn" @click="addActive">Перенести в активные</a-button>
              </a-form-item>    
           </template>
     </BaseModal>
+    <ModalAddByAchive v-if="argiveShow" v-model:open="argiveShow" :info="formState" />
     <ModalAddCriteria v-if="criteriaShow" v-model:open="criteriaShow" />
 </template>
 <script setup lang="ts">
@@ -149,6 +155,7 @@ const formState = reactive<IFormState>({
 const mainCriteria  = ref<IListCrieria[]>([])
 const subCriteria  = ref<IListCrieria[]>([])
 const criteriaShow = ref(false)
+const argiveShow = ref(false)
 const activeKey = ref(['0']);
 
 // валадция ошибок
@@ -237,7 +244,7 @@ async function onSubmit(){
    ...formState,
   }
   try {
-    if(props.info.id) {
+    if(props.info && props.info.id) {
         body.id = props.info.id
         await updateDataInIndexedDB(props.info.id, body);
         message.success('Успешно изменено');
@@ -259,16 +266,7 @@ async function onSubmit(){
     
 
 };
-// добавление в архив
-async function addArchive() {
-    const body = {
-    ...formState,
-    }
-    body.status = 'archival'
-    await addDataToArchive(body);
-        message.success('Успешно добавлено в архив');
-    hide()
-}
+
 // добавление в активные 
 async function addActive() {
     const body = {
@@ -287,6 +285,9 @@ function hide() {
 }
 function openModal() {
     criteriaShow.value = true
+}
+function openModalArhive () {
+    argiveShow.value = true
 }
 // динамические добавление пропосов связанно с тем что кретерий могут быть новые
 function fetchProps() { 
@@ -313,7 +314,6 @@ function fetchProps() {
             }
        })
        formState.id = props.info.id
-       console.log(formState);
        
     mainCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('main.')) as IListCrieria[];
     subCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('sub.')) as IListCrieria[]; 

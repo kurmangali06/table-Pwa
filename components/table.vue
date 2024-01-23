@@ -93,7 +93,7 @@
                 {{ record.sub.militaryService }}
               </template>
               <template v-else>
-                {{ record.sub[column.dataIndex as string] || record.main[column.dataIndex as string]  }}
+                {{ record.sub[column.dataIndex as string] || record.main[column.dataIndex as string] ||  record[column.dataIndex as string]  }}
               </template>
             </template>
           </a-table>
