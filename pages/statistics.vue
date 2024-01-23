@@ -1,11 +1,11 @@
 <template>
     <div class="dashboard" v-if="!loading">
       <a-select
-      style="width: 100%;"
-      v-model:value="selectedElement"
-      :options="mainList"
-      mode="multiple"
-      placeholder="выберите из списка"
+        style="width: 100%;"
+        v-model:value="selectedElement"
+        :options="mainList"
+        mode="multiple"
+        placeholder="выберите из списка"
     ></a-select>
     <a-row>
       <a-col :span="12" v-for="(item, index) in percentages" :key="item.id">
@@ -15,9 +15,9 @@
           <a-card style="height: 450px;" :title="translateName(checkKey(item.id, 'main')) || translateName(checkKey(item.id, 'sub'))" >
             <apexchart 
             :id="item.id"
+            height="300px"
             :key="item.id"
             class="card"
-            style="max-height: 300px;"
             :options="chartOptions(item.result)"
             :series="percentage(item.result) "
             type="pie"
@@ -32,28 +32,6 @@
        </template>
       </a-col>
     </a-row>
-        <!-- <a-card title="Аналитика">
-          <a-card-grid 
-             v-for="(item, index) in percentages" :key="item.id"
-             style="width: 50%;"
-             >
-             <template  
-             v-if="!checkAbountZeroSumPercetages(item.result)"
-             >
-              <apexchart 
-                :key="item.id"
-                class="card"
-                :options="chartOptions(item.result)"
-                :series="percentage(item.result) "
-                type="pie"
-            />
-           </template>
-            <template v-else>
-              <a-empty class="cards" :description="`поля по данной критерий ${translateName(checkKey(item.id, 'main')) || translateName(checkKey(item.id, 'sub'))} не заполнены `"/>
-            </template>
-            
-        </a-card-grid>
-      </a-card> -->
       <div class="footer" v-if="tableStore.list.length">
         <a-row :gutter="16">
           <a-col :span="10" >
@@ -98,7 +76,7 @@
 <script lang="ts" setup>
 import type { IDashboard, IFormState, IPercentages, IValue } from '~/interface';
 import type { ApexOptions } from 'apexcharts';
-import { calculateAverage, calculateCompletionPercentage } from '~/service/statictis';
+import {  calculateCompletionPercentage } from '~/service/statictis';
 import { checkKey, translateName } from '~/service/helper';
 
 const percentages = ref<IDashboard[]>([])
@@ -223,4 +201,6 @@ onMounted(() => {
       align-items: center;
       justify-content: center;
     }
+
+  
 </style>
