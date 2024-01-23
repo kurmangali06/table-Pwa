@@ -15,7 +15,7 @@
           <a-card style="height: 450px;" :title="translateName(checkKey(item.id, 'main')) || translateName(checkKey(item.id, 'sub'))" >
             <apexchart 
             :id="item.id"
-            height="300px"
+            height="350px"
             :key="item.id"
             class="card"
             :options="chartOptions(item.result)"
@@ -143,7 +143,7 @@ const chartOptions = computed(() => {
        return {
         chart: {
               type: 'pie',
-              height: '300px',
+              height: '350px',
               width: '100%',
 
             },
@@ -195,7 +195,7 @@ onMounted(() => {
     }
     .card {
       width: 100%;
-      height: fit-content;
+      height: 350px;
       display: flex;
       flex-direction: column;
       align-items: center;
