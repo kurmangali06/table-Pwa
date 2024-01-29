@@ -121,13 +121,18 @@ function seachElementByName(name: string) {
 // добавление кретерий в форму
 function addItem(actions: 'main' | 'sub') {
     if(actions === 'sub') {
-        seachElementByName(formStateCriteria.name);
         const newList = { value: formStateCriteria.newValueSub, label: formStateCriteria.newValueSub };
         tableStore.addListCriteria(formStateCriteria.name, newList);
         formStateCriteria.newValueSub = '';
-        seachElementByName(formStateCriteria.name);
     } else {
-        const newCriteria = {
+    //зависмости от чекбокса добавление происходит в основ или доп 
+     addCriteria(switchByMainOfSub.value, formStateCriteria.newValueMian)    
+    }
+    seachElementByName(formStateCriteria.name);
+}
+
+function addCriteria(switchByMainOfSub: boolean, val: string) {
+    const newCriteria = {
             label: formStateCriteria.newValueMian,
             key: `main.${getRandomId()}`,
             hasChildren: false
@@ -145,36 +150,32 @@ function addItem(actions: 'main' | 'sub') {
             title: formStateCriteria.newValueMian,
             dataIndex: checkKey(newCriteriaSub.key, 'sub') 
         };
-   //зависмости от чекбокса добавление происходит в основ или доп 
-        if(switchByMainOfSub.value) {
-            // добавление в заголовок нового кретерия в таблицы
+    if(switchByMainOfSub) {
+             // добавление в заголовок нового кретерия в таблицы
             tableStore.setColumns(newColumn);
-              // добавление в ключей для доп логики
-            tableStore.setMainKeys(newColumn.dataIndex);
-            // добавление в текущий список в селекторе
-            itemsMain.value.push({ value: formStateCriteria.newValueMian });
-            const keyNew = checkKey(newCriteria.key, 'main');
-               // добавление в валидация обязательную форму
-            tableStore.updatedRules(keyNew);
-            listNewKeys.value.push(newCriteria.key);
-            // добавление в форму нового ключа
-            tableStore.updatedForm(keyNew, 'main');
-        } else {
-            //аналогично в доп информацию только тут нету валидаций
-            tableStore.setColumns(newColumnSub);
-            const keyNew = checkKey(newCriteriaSub.key, 'sub');        
-            itemsSub.value.push({ value: formStateCriteria.newValueMian });
-            tableStore.updatedForm(keyNew, 'sub');
-            tableStore.addCriteria(newCriteriaSub);
-            listNewKeys.value.push(keyNew)
-            tableStore.setSubKeys(newColumnSub.dataIndex);
-        }
-
-        tableStore.addCriteria(newCriteria);
-        formStateCriteria.name = formStateCriteria.newValueMian
-        formStateCriteria.newValueMian = '';
-        
+             // добавление в ключей для доп логики
+           tableStore.setMainKeys(newColumn.dataIndex);
+           // добавление в текущий список в селекторе
+           itemsMain.value.push({ value: val });
+           const keyNew = checkKey(newCriteria.key, 'main');
+              // добавление в валидация обязательную форму
+           tableStore.updatedRules(keyNew);
+           listNewKeys.value.push(newCriteria.key);
+           // добавление в форму нового ключа
+           tableStore.updatedForm(keyNew, 'main');    
+    } else {
+        tableStore.setColumns(newColumnSub);
+        const keyNew = checkKey(newCriteriaSub.key, 'sub');        
+        itemsSub.value.push({ value:val });
+        tableStore.updatedForm(keyNew, 'sub');
+        tableStore.addCriteria(newCriteriaSub);
+        listNewKeys.value.push(keyNew)
+        tableStore.setSubKeys(newColumnSub.dataIndex)
     }
+
+    tableStore.addCriteria(newCriteria);
+    formStateCriteria.name = formStateCriteria.newValueMian
+    formStateCriteria.newValueMian = '';
 }
 
 watch(() => formStateCriteria.name, () => {

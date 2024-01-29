@@ -352,7 +352,6 @@ watch(() => tableStore.formState, (newFormState) => {
        })
     mainCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('main.')) as IListCrieria[];
     subCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('sub.')) as IListCrieria[]; 
-    console.log(formState);
     
 }, {
     deep:true,

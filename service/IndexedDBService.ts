@@ -69,7 +69,6 @@ export const addDataToArchive = async (data: IFormState) => {
   try {
     if (data.status === 'archival') {
       const serializableData   = prepareDataForStorage<IFormState>(data);
-      console.log(serializableData );
       await db.archiveStore.add(serializableData);
       await deleteDataFromIndexedDB(serializableData.id)
     }
@@ -91,9 +90,7 @@ export const deleteDataFromIndexedDB = async (id: any) => {
 export const getAllDataFromIndexedDB = async (filterCriteria = null): Promise<IFormState[]> => {
   try {
     let result;
-    if (filterCriteria) {
-      console.log(filterCriteria);
-      
+    if (filterCriteria) {      
       result = await db.myObjectStore
         .filter(item => {          
           return Object.keys(filterCriteria).every(key => {
@@ -150,12 +147,14 @@ export const deleteoArchive = async (id: any) => {
     throw error;
   }
 };
-export const getListCriteria = async () => {
+export const getListCriteria = async (): Promise<IListCrieria[]> => {
   const result = await db.listCrieria.toArray()
   return result;
 }
 export const addNewCriteria = async( val: IListCrieria) => {
   const serializableData = prepareDataForStorage<IListCrieria>(val);
+  console.log(serializableData);
+  
   await db.listCrieria.add(serializableData)
 }
 
@@ -192,7 +191,7 @@ export const addNewRules =async (val: RulesRefType) => {
   await db.rulesRef.add(val) 
 }
 
-export const getCountCriteria =async () => {
+export const getCountCriteria =async ():  Promise<number> => {
   const length = await db.listCrieria.count();
   return length
 }

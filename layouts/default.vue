@@ -33,7 +33,7 @@ import {
 } from '@ant-design/icons-vue';
 import type { MenuProps, ItemType } from 'ant-design-vue';
 import type { IListCrieria } from '~/interface';
-import { addNewCriteria } from '~/service/IndexedDBService';
+import { addNewCriteria, getCountCriteria, getListCriteria } from '~/service/IndexedDBService';
 const state = reactive({
   collapsed: false,
   selectedKeys: ['1'],
@@ -76,12 +76,46 @@ const handleClick: MenuProps['onClick'] = e => {
 };
 
 const tableStore = useTableStore()
-onBeforeMount(() => {
-  if(tableStore.listCriteria.length) {
-  tableStore.listCriteria.forEach(e => {
-     addNewCriteria(e as IListCrieria)
+onBeforeMount(async () => {
+  let countCriteria = tableStore.listCriteria.length
+  console.log(tableStore.listCriteria.length);
+  
+  await getCountCriteria().then((res) => {
+    if(res) {
+      countCriteria = res
+    }
   })
-}
+  console.log(countCriteria);
+  
+  if(tableStore.listCriteria.length === countCriteria) {
+    tableStore.listCriteria.forEach(async (e) => {
+     await addNewCriteria(e)
+    })
+  } else if(tableStore.listCriteria.length  < countCriteria){
+    await getListCriteria().then((res) => {
+      res.forEach((t => {
+        if(tableStore.listCriteria.find(e => e.key === t.key)) {
+          return;
+        } else {
+          tableStore.addCriteria(t)
+        }
+      }))
+    })
+  }
+})
+
+watch(() => tableStore.listCriteria, async () => {
+  let countCriteria = tableStore.listCriteria.length
+  await getCountCriteria().then((res) => {
+    if(res) {
+      countCriteria = res
+    }
+  })
+  if(tableStore.listCriteria.length > countCriteria) {
+    addNewCriteria(tableStore.listCriteria[tableStore.listCriteria.length -1])
+  } 
+}, {
+  deep: true
 })
 </script>
 <style lang="css">

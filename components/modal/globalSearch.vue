@@ -140,6 +140,7 @@ function fetchProps() {
 function mergeEntries(entries: any[]): IListCrieria[] {
   const grouped = entries.reduce((acc, entry) => {
     // Если ключ уже есть в аккумуляторе, объединяем списки
+    
     if (acc[entry.key]) {
       const existingValues = acc[entry.key].list.map((item: { value: any; }) => item.value);
       entry.list.forEach((item: { value: string; }) => {
@@ -207,16 +208,18 @@ function checkFiledsByTable() {
 }
 checkFiledsByTable()
 
-onMounted(() => {
+onMounted(async () => {
     if(props.params) {
-        fetchProps()
+        console.log(1212);
+        
+        await fetchCurentCriteria()    
+        await fetchProps()
+    } else {
+        console.log(1222212);
+        mainCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('main.')).filter((e) => e.list?.length) as IListCrieria[];
+        subCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('sub.')).filter((e) => e.list?.length) as IListCrieria[];
     }
 
-    mainCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('main.')).filter((e) => e.list?.length) as IListCrieria[];
-    subCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('sub.')).filter((e) => e.list?.length) as IListCrieria[];
-    fetchCurentCriteria()
-    console.log(mainCriteria.value);
-    
 })
 </script>
 <style lang="css" scoped>

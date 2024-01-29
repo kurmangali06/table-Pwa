@@ -1,4 +1,4 @@
-import type { IFormState, IMainInfo, ISubInfo, KeysOfMainIMainInfo } from "~/interface";
+import type { IFormState, IMainInfo, ISubInfo } from "~/interface";
 import { mainKeys, subKeys } from "./table";
 
 export function getRandomId() {
@@ -150,12 +150,6 @@ export function checkKeyFormObject(obj: any ): IFormState  {
     return res as unknown as IFormState
 
 }
-export const fieldOfActivityList = [
-    {value:'Экономика, бизнес' },
-    {value:'Культура, спорт' },
-    {value:'Наука, образование' },
-    {value:'Государство, общество' },
-]
 
 export function isFormState(obj: any): obj is IFormState {
     return obj 
@@ -164,3 +158,4 @@ export function isFormState(obj: any): obj is IFormState {
         && 'sub' in obj 
         && 'status' in obj;
 }
+

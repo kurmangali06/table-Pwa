@@ -563,9 +563,7 @@ export const useTableStore = defineStore(STORE_ID, {
     updatedForm(update: string, actions: 'main' | 'sub' ) {        
           const newKeys = {
             [update]: ''
-          }
-          console.log(update);
-          
+          }          
           if(actions === 'main')
             this.form.main = {...this.form.main, ...newKeys}
           else 
@@ -603,9 +601,7 @@ export const useTableStore = defineStore(STORE_ID, {
     addListCriteria(criteria: string, list: IValue) {
       const criteriaIndex = this.listCriteria.findIndex(e => e.label === criteria);
       if (criteriaIndex !== -1) {
-        if (Array.isArray(this.listCriteria[criteriaIndex].list)) {
-          console.log(list);
-          
+        if (Array.isArray(this.listCriteria[criteriaIndex].list)) {          
           this.listCriteria[criteriaIndex].list?.push(list)
         } else {
           this.listCriteria[criteriaIndex].list = [list];

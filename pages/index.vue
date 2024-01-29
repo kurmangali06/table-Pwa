@@ -106,8 +106,7 @@ const showSearch = ref(false)
 const activeKey = ref('1');
 const searchFilterParams = ref()
 const searchParamsMain = ref<string[][]>([])
-const router = useRouter();
-const route = useRoute();
+
 const tableStore = useTableStore()
 const titleTableArhive = ref<IColumn[]>([])
 
@@ -132,7 +131,6 @@ function getDate(filterData?: any) {
     } 
     
   })})
-  console.log(listArchive);
   
 }).catch((error) => {
   console.error('Error:', error);
@@ -234,7 +232,6 @@ const handleFile = (file: File) => {
   reader.readAsArrayBuffer(file);
 };
 const handleUpload = () => {
-  console.log(fileList.value);
   fileList.value?.forEach(e => {
     handleFile(e as  any)
     
@@ -265,9 +262,7 @@ function getParams(e: IFormState) {
      mainParams = Object.entries(e.main).filter(e => e[1] !== '' && e[1] !== undefined);
   if('sub' in e)
     subParams = Object.entries(e.sub).filter(e => e[1] !== '' && e[1] !== 0 && e[1] !== undefined)
-  let newParams = [...mainParams, ...subParams];
-  console.log(newParams);
-  
+  let newParams = [...mainParams, ...subParams];  
   if (searchParamsMain.value.length) {
     // Update existing values or add new values
     newParams.forEach(param => {
@@ -290,9 +285,16 @@ function getParams(e: IFormState) {
 function onSearch(searchValue: string) {
   if(!searchValue)
    getDate()
-  list.value = list.value.filter(person => person.main.fullName.includes(searchValue));
+   list.value = list.value.filter(person => 
+  person.main.fullName.toLowerCase().includes(searchValue.toLowerCase())
+  );
   count.value = list.value.length
 }
+
+watch(() => search.value, () => {
+  if(search.value.length === 0)
+    getDate()
+})
 
 function handleClose(removedTag: string) {
     searchParamsMain.value =  searchParamsMain.value.filter(e => e[1] !== removedTag)
@@ -350,10 +352,6 @@ onMounted(() => {
     getDate()
   }
   titleTableArhive.value = tableStore.columnsTitle
-  titleTableArhive.value.push({
-    title: 'Комментарий',
-    dataIndex: 'comments',
-  })
 })
 </script>
 
