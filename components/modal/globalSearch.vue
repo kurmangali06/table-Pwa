@@ -62,7 +62,7 @@
 </template>
 <script lang="ts" setup>
 import type { IListCrieria, IFormState } from '~/interface';
-import { checkKey } from '~/service/helper';
+import { checkKey, translateName } from '~/service/helper';
 
 
 const emit = defineEmits(['update:open', 'criteriaParams'])
@@ -136,17 +136,87 @@ function fetchProps() {
        })
        
 }
-watch(() => props.params,() => {
-    if(props.params)
-     fetchProps()
-})
-console.log(tableStore.listTable);
+
+function mergeEntries(entries: any[]): IListCrieria[] {
+  const grouped = entries.reduce((acc, entry) => {
+    // Если ключ уже есть в аккумуляторе, объединяем списки
+    if (acc[entry.key]) {
+      const existingValues = acc[entry.key].list.map((item: { value: any; }) => item.value);
+      entry.list.forEach((item: { value: string; }) => {
+        if (item.value.trim() !== '' && !existingValues.includes(item.value)) {
+          acc[entry.key].list.push(item);
+        }
+      });
+    } else {
+      // Если ключа нет, просто добавляем объект в аккумулятор
+      acc[entry.key] = {...entry, list: entry.list.filter((item: { value: string; }) => item.value.trim() !== '')};
+    }
+    return acc;
+  }, {});
+
+  // Преобразуем обратно в массив объектов
+  return Object.values(grouped);
+}
+
+
+
+function fetchCurentCriteria() {
+    const mainList = tableStore.list.map((e) => {
+        return e.main
+    })
+    const subList = tableStore.list.map((e) => {
+        return e.sub
+    })
+    const list = mainList.map(obj => {
+        return Object.entries(obj)
+        .filter(([key, _]) => key !== 'fullName' && key !== 'position' )
+        .map(([key, value]) => {
+        return {
+            label: translateName(key), // Предполагаем, что функция translateName переводит ключ
+            key: `main.${key}`,
+            list: [
+            { value: value }
+            ]
+        };
+        });
+    }).flat(); // Плоский массив после обработки каждого объекта\
+
+    const listSub = subList.map(obj => {
+        return Object.entries(obj)
+        .filter(([key, _]) => key !== 'amountOfChildren' )
+        .map(([key, value]) => {
+        return {
+            label: translateName(key), // Предполагаем, что функция translateName переводит ключ
+            key: `sub.${key}`,
+            list: [
+            { value: value }
+            ]
+        };
+        });
+    }).flat(); // Плоский массив после обработки каждого объекта
+    subCriteria.value = mergeEntries(listSub);
+    mainCriteria.value = mergeEntries(list)
+    
+}
+function checkFiledsByTable() {
+    tableStore.list.map(t =>  {
+        return {
+            label: t.main
+        }
+    })
+}
+checkFiledsByTable()
+
 onMounted(() => {
     if(props.params) {
         fetchProps()
     }
+
     mainCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('main.')).filter((e) => e.list?.length) as IListCrieria[];
     subCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('sub.')).filter((e) => e.list?.length) as IListCrieria[];
+    fetchCurentCriteria()
+    console.log(mainCriteria.value);
+    
 })
 </script>
 <style lang="css" scoped>

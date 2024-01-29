@@ -1,4 +1,5 @@
 import type { IFormState, IMainInfo, ISubInfo, KeysOfMainIMainInfo } from "~/interface";
+import { mainKeys, subKeys } from "./table";
 
 export function getRandomId() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -137,12 +138,11 @@ export function transformExcellToArray(list: any[]): IFormState[] {
     return res as IFormState[] 
 }
 
-export function checkKeyFormObject(obj: any ): IFormState  {  
-    const tableStore = useTableStore()
+export function checkKeyFormObject(obj: any ): IFormState  {    
     const res =  Object.entries(obj).reduce(({ main, sub }: any, [key, value]) => {
-      if (tableStore.mainKey.includes(key)) {
+      if (mainKeys.includes(key)) {
         main[key] = value;
-      } else if (tableStore.subKey.includes(key)) {
+      } else if (subKeys.includes(key)) {
         sub[key] = value;
       }
       return { main, sub };
