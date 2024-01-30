@@ -286,7 +286,7 @@ function onSearch(searchValue: string) {
   if(!searchValue)
    getDate()
    list.value = list.value.filter(person => 
-  person.main.fullName.toLowerCase().includes(searchValue.toLowerCase())
+    person.main.fullName?.toLowerCase().includes(searchValue.toLowerCase())
   );
   count.value = list.value.length
 }

@@ -209,13 +209,10 @@ function checkFiledsByTable() {
 checkFiledsByTable()
 
 onMounted(async () => {
-    if(props.params) {
-        console.log(1212);
-        
+    if(props.params) {        
         await fetchCurentCriteria()    
         await fetchProps()
     } else {
-        console.log(1222212);
         mainCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('main.')).filter((e) => e.list?.length) as IListCrieria[];
         subCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('sub.')).filter((e) => e.list?.length) as IListCrieria[];
     }

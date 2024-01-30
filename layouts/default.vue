@@ -33,7 +33,7 @@ import {
 } from '@ant-design/icons-vue';
 import type { MenuProps, ItemType } from 'ant-design-vue';
 import type { IListCrieria } from '~/interface';
-import { addNewCriteria, getCountCriteria, getListCriteria } from '~/service/IndexedDBService';
+import { addNewColums, addNewCriteria, addNewMainKey, addNewSubKey, getCountColumnsTitle, getCountCriteria, getCountMainKey, getCountSubKey, getListColumTitle, getListCriteria, getListMainKey, getListSubKey } from '~/service/IndexedDBService';
 const state = reactive({
   collapsed: false,
   selectedKeys: ['1'],
@@ -76,47 +76,147 @@ const handleClick: MenuProps['onClick'] = e => {
 };
 
 const tableStore = useTableStore()
-onBeforeMount(async () => {
-  let countCriteria = tableStore.listCriteria.length
-  console.log(tableStore.listCriteria.length);
-  
-  await getCountCriteria().then((res) => {
-    if(res) {
-      countCriteria = res
-    }
+
+async function getDbCriteria() {
+  const getCounte =  getCountCriteria()
+  getCounte.then(async (res:number) => {    
+      if(res === 0) {
+        if(tableStore.listCriteria.length > res) {
+        tableStore.listCriteria.forEach(async (e) => {
+        await addNewCriteria(e)
+      })
+        } 
+    } else {  
+          await getListCriteria().then((res) => {
+            res.forEach((t => {
+              if(tableStore.listCriteria.find(e => e.key === t.key)) {
+                return
+              } else {
+                tableStore.addCriteria(t)
+              }
+            }))
+          })
+       }
   })
-  console.log(countCriteria);
-  
-  if(tableStore.listCriteria.length === countCriteria) {
-    tableStore.listCriteria.forEach(async (e) => {
-     await addNewCriteria(e)
-    })
-  } else if(tableStore.listCriteria.length  < countCriteria){
-    await getListCriteria().then((res) => {
-      res.forEach((t => {
-        if(tableStore.listCriteria.find(e => e.key === t.key)) {
-          return;
-        } else {
-          tableStore.addCriteria(t)
-        }
-      }))
-    })
-  }
+}
+async function getDbColum() {
+  const getCounte =  getCountColumnsTitle()
+  getCounte.then(async (res:number) => {    
+      if(res === 0) {
+        tableStore.columns.forEach(async (e) => {
+        await addNewColums(e)
+      })
+
+    } else {  
+          await getListColumTitle().then((res) => {     
+            res.forEach((t => {  
+              if(tableStore.columns.find(e => e.dataIndex === t.dataIndex)) {
+                return
+              } else {
+                tableStore.setColumns(t)
+              }
+            }))
+          })
+       }
+  })
+}
+
+async function getDbMainKey() {
+  const getCounte =  getCountMainKey()
+  getCounte.then(async (res:number) => {    
+      if(res === 0) {
+        tableStore.mainKey.forEach( (e) => {
+          console.log(e);
+          
+        addNewMainKey(e)
+      })
+
+    } else {  
+          await getListMainKey().then((res) => {     
+            res.forEach((t => {  
+              if(tableStore.mainKey.find(e => e === t)) {
+                return
+              } else {
+                tableStore.setMainKeys(t)
+              }
+            }))
+          })
+       }
+  })
+}
+
+async function getDbSubKey() {
+  const getCounte =  getCountSubKey()
+  getCounte.then(async (res:number) => {    
+      if(res === 0) {
+        tableStore.subKey.forEach(async (e) => {
+        await addNewSubKey(e)
+      })
+
+    } else {  
+          await getListSubKey().then((res) => {     
+            res.forEach((t => {  
+              if(tableStore.subKey.find(e => e === t)) {
+                return
+              } else {
+                tableStore.setSubKeys(t)
+              }
+            }))
+          })
+       }
+  })
+}
+onMounted(async () => {
+  await getDbCriteria()
+  await getDbColum()
+  // await getDbMainKey()
+  // await getDbSubKey()
 })
 
 watch(() => tableStore.listCriteria, async () => {
-  let countCriteria = tableStore.listCriteria.length
-  await getCountCriteria().then((res) => {
-    if(res) {
-      countCriteria = res
-    }
-  })
-  if(tableStore.listCriteria.length > countCriteria) {
+  await getCountCriteria().then((res) => {  
+    if(res > tableStore.listCriteria.length ) {
     addNewCriteria(tableStore.listCriteria[tableStore.listCriteria.length -1])
-  } 
+   } 
+  })
+
 }, {
   deep: true
 })
+
+watch(() => tableStore.columns, async () => {
+  await getCountColumnsTitle().then((res) => {
+    if(res > tableStore.columns.length ) {
+      addNewColums(tableStore.columns[tableStore.columns.length -1])
+   } 
+  })
+
+}, {
+  deep: true
+})
+
+watch(() => tableStore.mainKey, async () => {
+  await getCountMainKey().then((res) => {
+    if(res > tableStore.mainKey.length ) {
+      addNewMainKey(tableStore.mainKey[tableStore.mainKey.length -1])
+   } 
+  })
+
+}, {
+  deep: true
+})
+
+watch(() => tableStore.subKey, async () => {
+  await getCountSubKey().then((res) => {
+    if(res > tableStore.subKey.length ) {
+      addNewSubKey(tableStore.subKey[tableStore.subKey.length -1])
+   } 
+  })
+
+}, {
+  deep: true
+})
+
 </script>
 <style lang="css">
 .container {

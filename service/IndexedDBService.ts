@@ -158,17 +158,17 @@ export const addNewCriteria = async( val: IListCrieria) => {
   await db.listCrieria.add(serializableData)
 }
 
-export const getListMainKey =async () => {
+export const getListMainKey =async ():Promise<string[]> => {
   const result = await db.mainKeys.toArray()
   return result
 }
-export const getListColumTitle =async () => {
+export const getListColumTitle =async (): Promise<IColumn[]> => {
   const result = await db.columnsTitle.toArray()
   return result
 }
 
 
-export const getListSubKey =async () => {
+export const getListSubKey =async ():Promise<string[]> => {
   const result = await db.subKeys.toArray()
   return result
 }
@@ -177,40 +177,43 @@ export const getRules =async () => {
   return result
 }
 export const addNewMainKey =async (key: string) => {
-   await db.mainKeys.add(key) 
+  const serializableData = prepareDataForStorage<string>(key);
+   await db.mainKeys.add(serializableData) 
 }
 
-export const addNewSubKey =async (key: string) => {
-  await db.subKeys.add(key) 
+export const addNewSubKey = async (key: string) => {
+  const serializableData = prepareDataForStorage<string>(key)
+  await db.subKeys.add(serializableData) 
 }
-export const addNewColums =async (val: IColumn) => {
-  await db.columnsTitle.add(val) 
+export const addNewColums = async (val: IColumn) => {
+  const serializableData = prepareDataForStorage<IColumn>(val);
+  await db.columnsTitle.add(serializableData) 
 }
 
 export const addNewRules =async (val: RulesRefType) => {
   await db.rulesRef.add(val) 
 }
 
-export const getCountCriteria =async ():  Promise<number> => {
+export const getCountCriteria = async (): Promise<number> => {
   const length = await db.listCrieria.count();
   return length
 }
 
-export const getCountMainKey =async () => {
+export const getCountMainKey =async () : Promise<number> => {
   const length = await db.mainKeys.count();
   return length
 }
 
-export const getCountSubKey =async () => {
+export const getCountSubKey =async () : Promise<number>=> {
   const length = await db.subKeys.count();
   return length
 }
 
-export const getCountColumnsTitle =async () => {
+export const getCountColumnsTitle =async (): Promise<number> => {
   const length = await db.columnsTitle.count();
   return length
 }
-export const getCountRules =async () => {
+export const getCountRules =async (): Promise<number> => {
   const length = await db.rulesRef.count();
   return length
 }
