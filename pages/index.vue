@@ -16,6 +16,7 @@
             <a-button type="default"  :disabled="loading" @click="openModal">Создать</a-button>
             <a-button type="default" :disabled="loading" style="margin-left: 10px;" @click="openSearhModal()">Поиск по критериям</a-button>
             <a-button type="primary"  :disabled="loading" style="margin-left: 10px;" @click="exportToExcel">Скачать в Excel </a-button>
+            <a-button type="dashed" style="margin-left: 10px;" @click="clearDate">Очистить таблицу</a-button>
           </div>
   
           <div class="clearfix">
@@ -72,7 +73,6 @@
     </div>
 
 
-    <a-button type="dashed" @click="clearDate">Clear</a-button>
     <addDate v-if="showModal" v-model:open="showModal"  :info="currentItem"/>
     <addDate v-if="showModalArchive" v-model:open="showModalArchive"  :info="currentItemArchive" mode="viewing"/>
     <ModalGlobalSearch v-if="showSearch" v-model:open="showSearch" @criteria-params="getParams" :params="searchFilterParams" />
@@ -368,7 +368,7 @@ onMounted(() => {
 .title_sub {
   display: flex;
   justify-content: space-between;
-  gap: 40px;
+  gap: 10px;
   align-items: center;
   max-height: 100px;
 }

@@ -3,7 +3,7 @@
         <ConfigProvider :locale="ruRU">
           <a-table 
             :dataSource="list" :columns="columns"  
-            :scroll="{ x:4000, y: 500 }"
+            :scroll="{ x:2800, y: 530 }"
             class="table"
             bordered  
             @change="changePage"
@@ -17,15 +17,9 @@
               <a-empty description="Данных нет" />
             </template>
             <template #footer>
-              <a-row>
-                <a-col :span="24" >
-                  <a-statistic title="Итого" :value="count" >
-                    <template #suffix>
-                      человек
-                    </template>
-                  </a-statistic>
-                </a-col>
-                </a-row>
+                <div class="total">
+                  Итого <span>{{ count }}</span>
+                </div>
             </template>
             <template #bodyCell="{ column, text , record}">
               <template v-if="column.dataIndex === 'fullName'">
@@ -133,7 +127,7 @@ function changePage(e:any) {
 </script>
 <style lang="css" >
 .truncate {
-    width: 130px;
+    width: 100px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -146,4 +140,11 @@ function changePage(e:any) {
     top: 0;
     z-index: 1;
 }
+.total {
+  font-size: 14px;
+
+}
+.total span {
+  font-weight: bold;
+ }
 </style>

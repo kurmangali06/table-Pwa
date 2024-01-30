@@ -228,7 +228,5 @@ watch(() => tableStore.subKey, async () => {
     z-index: 1;
     position: absolute;
 }
-.page {
-    padding-top: 10px;
-}
+
 </style>
