@@ -7,6 +7,7 @@
         <template #content>
             <a-form 
             :model="formState"
+            ref="formRef"
             name="dynamic_rule"
             :label-col="{ span: 8}"
             :wrapper-col="{ span: 16 }"
@@ -16,6 +17,7 @@
                     <a-form-item
                              v-if="tableStore.stateRef[checkKey(item.key, 'main')]"
                             :label="item.label"
+                            :name="['main',`${checkKey(item.key, 'main')}`]"
                             :rules="tableStore.stateRef[checkKey(item.key, 'main')]"
                              >
                              <template v-if="item.list">
@@ -45,7 +47,6 @@
                              </template>
                          
                             <a-input v-else :readonly="props.mode === 'viewing'" v-model:value="formState.main[checkKey(item.key, 'main')]"  />
-                            <span v-if="errorMessages(checkKey(item.key, 'main'))"  style="color: red;">{{errorMessages(checkKey(item.key, 'main')) }}</span> 
                     </a-form-item>                      
                 </div>
                 <a-form-item
@@ -115,7 +116,8 @@ const props = defineProps({
         default: 'edit'
     }
 })
-const dateInfoRef = ref();
+
+const formRef = ref();
 const emit = defineEmits(['update:open'])
 const tableStore = useTableStore()
 const errList = ref<any[]>([])
@@ -243,7 +245,8 @@ async function onSubmit(){
   const body = {
    ...formState,
   }
-  try {
+const valid = await formRef.value.validate();
+if(valid){
     if(props.info && props.info.id) {
         body.id = props.info.id
         await updateDataInIndexedDB(props.info.id, body);
@@ -255,16 +258,10 @@ async function onSubmit(){
     }
         hide()
         resetFields()
-    
-  } catch (error) {
-          if(error instanceof Error) {
-            console.log(error);
-            message.error('заполните все обязательные поля');
-      }
-  }
 
-    
-
+} else {
+    message.error('заполните все обязательные поля');
+}    
 };
 
 // добавление в активные 
@@ -293,8 +290,8 @@ function openModalArhive () {
 function fetchProps() { 
        const mainList = Object.entries(props.info.main)
        const subList = Object.entries(props.info.sub)
-       const formStateList = Object.entries(formState.main)
-       const formStateSubList = Object.entries(formState.sub)
+       const formStateList = Object.entries(tableStore.formState.main)
+       const formStateSubList = Object.entries(tableStore.formState.sub)
        mainList.forEach(e => {
             const findElement = formStateList.find(t => t[0] === e[0])
  
@@ -318,6 +315,20 @@ function fetchProps() {
     mainCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('main.')) as IListCrieria[];
     subCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('sub.')) as IListCrieria[]; 
        
+}
+function fetchKeyOfValue() {
+       const formStateList = Object.entries(tableStore.formState.main)
+       const formStateSubList = Object.entries(tableStore.formState.sub)
+       formStateList.forEach(e => {        
+            formState.main[e[0]] = e[1]
+       })
+
+       formStateSubList.forEach(e => {
+             formState.sub[e[0]] = e[1]
+       })
+       
+    mainCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('main.')) as IListCrieria[];
+    subCriteria.value = tableStore.listCriteria.filter(item => item.key.startsWith('sub.')) as IListCrieria[]; 
 }
 watch(() => props.info,() => {
     if(props.info) {
@@ -360,6 +371,8 @@ watch(() => tableStore.formState, (newFormState) => {
 onBeforeMount(() => {
     if(props.info) {     
         fetchProps()
+    } else {
+        fetchKeyOfValue()
     }
 
 })

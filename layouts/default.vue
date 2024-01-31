@@ -1,7 +1,7 @@
 <template >
     <div class="container" id="main_container">
         <div class="sidebar">
-            <div style="width: 256px">
+            <div style="width: 150px">
                 <a-button type="primary" style="margin-bottom: 16px" @click="toggleCollapsed">
                   <MenuUnfoldOutlined v-if="state.collapsed" />
                   <MenuFoldOutlined v-else />
@@ -124,20 +124,19 @@ async function getDbColum() {
 async function getDbMainKey() {
   const getCounte =  getCountMainKey()
   getCounte.then(async (res:number) => {    
-      if(res === 0) {
-        tableStore.mainKey.forEach( (e) => {
-          console.log(e);
-          
-        addNewMainKey(e)
-      })
-
+      if(res === 0) {   
+        for (const e of tableStore.mainKey) {
+        await addNewMainKey(e);
+        }
     } else {  
           await getListMainKey().then((res) => {     
-            res.forEach((t => {  
-              if(tableStore.mainKey.find(e => e === t)) {
+            res.forEach(((t: any) => {  
+              if(tableStore.mainKey.find(e => e === t.id)) {
                 return
               } else {
-                tableStore.setMainKeys(t)
+                tableStore.setMainKeys(t.id)
+                tableStore.updatedForm(t.id, 'main')
+                tableStore.updatedRules(t.id)
               }
             }))
           })
@@ -149,17 +148,18 @@ async function getDbSubKey() {
   const getCounte =  getCountSubKey()
   getCounte.then(async (res:number) => {    
       if(res === 0) {
-        tableStore.subKey.forEach(async (e) => {
-        await addNewSubKey(e)
-      })
+        for (const e of tableStore.subKey) {
+        await addNewSubKey(e);
+        }
 
     } else {  
           await getListSubKey().then((res) => {     
-            res.forEach((t => {  
-              if(tableStore.subKey.find(e => e === t)) {
+            res.forEach(((t: any) => {  
+              if(tableStore.subKey.find(e => e === t.id)) {
                 return
               } else {
-                tableStore.setSubKeys(t)
+                tableStore.setSubKeys(t.id)
+                tableStore.updatedForm(t.id, 'sub')
               }
             }))
           })
@@ -169,50 +169,33 @@ async function getDbSubKey() {
 onMounted(async () => {
   await getDbCriteria()
   await getDbColum()
-  // await getDbMainKey()
-  // await getDbSubKey()
+  await getDbMainKey()
+  await getDbSubKey()
 })
 
 watch(() => tableStore.listCriteria, async () => {
-  await getCountCriteria().then((res) => {  
-    if(res > tableStore.listCriteria.length ) {
     addNewCriteria(tableStore.listCriteria[tableStore.listCriteria.length -1])
-   } 
-  })
-
 }, {
   deep: true
 })
 
 watch(() => tableStore.columns, async () => {
-  await getCountColumnsTitle().then((res) => {
-    if(res > tableStore.columns.length ) {
       addNewColums(tableStore.columns[tableStore.columns.length -1])
-   } 
-  })
-
 }, {
   deep: true
 })
 
 watch(() => tableStore.mainKey, async () => {
-  await getCountMainKey().then((res) => {
-    if(res > tableStore.mainKey.length ) {
-      addNewMainKey(tableStore.mainKey[tableStore.mainKey.length -1])
-   } 
-  })
-
+  addNewMainKey(tableStore.mainKey[tableStore.mainKey.length -1])
+  tableStore.updatedForm(tableStore.mainKey[tableStore.mainKey.length -1], 'main')
+  tableStore.updatedRules(tableStore.mainKey[tableStore.mainKey.length -1])
 }, {
   deep: true
 })
 
 watch(() => tableStore.subKey, async () => {
-  await getCountSubKey().then((res) => {
-    if(res > tableStore.subKey.length ) {
       addNewSubKey(tableStore.subKey[tableStore.subKey.length -1])
-   } 
-  })
-
+      tableStore.updatedForm(tableStore.subKey[tableStore.subKey.length -1], 'sub')
 }, {
   deep: true
 })

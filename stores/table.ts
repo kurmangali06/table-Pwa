@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { reactive } from 'vue';
 import type { IColumn, IFormState, IListCrieria, ISearchForm, IValue, RulesRefType } from '~/interface';
+import { getRandomId } from '~/service/helper';
 
 const STORE_ID = 'table'
 
@@ -216,16 +217,19 @@ export const useTableStore = defineStore(STORE_ID, {
         {
             label: 'ФИО клиента',
             key: 'main.fullName',
-            hasChildren:false
+            hasChildren:false,
+            id: getRandomId()
         },
         {
             label: 'Должность',
             hasChildren:false,
             key: 'main.position',
+            id: getRandomId()
         },
        {
         label: 'Пол',
         key: 'main.gender',
+        id: getRandomId(),
         list: [
             { value: 'М', label: 'М' },
             { value: 'Ж', label: 'Ж'},
@@ -235,6 +239,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Национальность',
         key: 'main.nationality',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Казах' },
             {value:'Русский' },
@@ -252,6 +257,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Возраст',
         key: 'main.age',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Молодой (18-44 лет)' },
             {value:'Средний (45-59 лет)' },
@@ -263,6 +269,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Образование',
         key: 'main.education',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Западное' },
             {value:'Российское' },
@@ -277,6 +284,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Сфера деятельности',
         key: 'main.fieldOfActivity',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Экономика/бизнес' },
             {value:'Культура/спорт' },
@@ -288,6 +296,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Опыт работы',
         key: 'main.experience',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Госслужба' },
             {value:'Квазигос' },
@@ -299,6 +308,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Место рождения',
         key: 'main.placeOfBirth',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Север' },
             {value:'Юг' },
@@ -312,6 +322,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Место влияния',
         key: 'main.placeOfInfluence',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Север' },
             {value:'Юг' },
@@ -326,6 +337,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Жуз/Ру',
         key: 'main.zhus',
         hasChildren:true,
+        id: getRandomId(),
         list: [
             { value:'Старший', 
               children : [
@@ -443,6 +455,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Ученая степень',
         key: 'sub.academicDegree',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Да' },
             {value:'Нет' },
@@ -452,6 +465,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Уровень известности',
         key: 'sub.fameLevel',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Общеизвестный' },
             {value:'Неизвестный' },
@@ -462,6 +476,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Уровень профессионализма',
         key: 'sub.levelOfProfessionalism',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Международный' },
             {value:'Национальный' },
@@ -472,6 +487,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Репутация',
         key: 'sub.reputation',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Безупречная' },
             {value:'Скандальная/дискредитированная' },
@@ -481,6 +497,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Опыт руководителя',
         key: 'sub.managersExperience',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Высшее звено' },
             {value:'Среднее звено' },
@@ -491,6 +508,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Религиозные убеждения',
         key: 'sub.religiousBeliefs',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Традиционные' },
             {value:'Радикальные' },
@@ -501,6 +519,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Уровень отмеченных достижений',
         key: 'sub.levelOfNotedAchievements',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Городской/районный' },
             {value:'Областной' },
@@ -512,11 +531,13 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Количество детей',
         key: 'sub.amountOfChildren',
         hasChildren:false,
+        id: getRandomId(),
        },
        {
         label: 'Масштаб видения',
         key: 'sub.scopeOfVision',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Стратегическое (глобальное)' },
             {value:'Тактическое' },
@@ -527,6 +548,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Тип лидерства',
         key: 'sub.leadershipType',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Харизматический' },
             {value:'Традиционный' },
@@ -537,6 +559,7 @@ export const useTableStore = defineStore(STORE_ID, {
         label: 'Отношение к воинской службе',
         key: 'sub.militaryService',
         hasChildren:false,
+        id: getRandomId(),
         list: [
             {value:'Служил' },
             {value:'Не служил' },

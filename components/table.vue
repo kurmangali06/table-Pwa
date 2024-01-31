@@ -3,7 +3,7 @@
         <ConfigProvider :locale="ruRU">
           <a-table 
             :dataSource="list" :columns="columns"  
-            :scroll="{ x:2800, y: 530 }"
+            :scroll="{ x:2800, y: 480 }"
             class="table"
             bordered  
             @change="changePage"

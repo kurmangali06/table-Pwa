@@ -9,8 +9,8 @@ class MyDatabase extends Dexie {
   archiveStore: Dexie.Table<IFormState, number>;
   listCrieria: Dexie.Table<IListCrieria, number>;
   columnsTitle: Dexie.Table<IColumn, number>;
-  mainKeys: Dexie.Table<string, number>;
-  subKeys: Dexie.Table<string, number>;
+  mainKeys: Dexie.Table<any, string>;
+  subKeys: Dexie.Table<any, string>;
   rulesRef: Dexie.Table<RulesRefType, number>;
   constructor() {
     super('myDatabase');
@@ -29,10 +29,10 @@ class MyDatabase extends Dexie {
       columnsTitle: '++id, name'
     });
     this.version(5).stores({
-      mainKeys: '++id, name'
+      mainKeys: 'name'
     });
     this.version(6).stores({
-      subKeys: '++id, name'
+      subKeys: 'name'
     });
     this.version(7).stores({
       rulesRef: '++id, name'
@@ -152,11 +152,20 @@ export const getListCriteria = async (): Promise<IListCrieria[]> => {
   return result;
 }
 export const addNewCriteria = async( val: IListCrieria) => {
-  const serializableData = prepareDataForStorage<IListCrieria>(val);
-  console.log(serializableData);
-  
+  const serializableData = prepareDataForStorage<IListCrieria>(val);  
   await db.listCrieria.add(serializableData)
 }
+
+export const updateCriteria = async(id: any, val: IListCrieria) => {  
+  try {
+    const serializableData = prepareDataForStorage<IListCrieria>(val);
+    await db.listCrieria.update(id, serializableData);
+  } catch (error) {
+    if(error instanceof Error )
+    console.error('Error updateCriteria:', error.message);
+  }  
+}
+
 
 export const getListMainKey =async ():Promise<string[]> => {
   const result = await db.mainKeys.toArray()
@@ -177,13 +186,22 @@ export const getRules =async () => {
   return result
 }
 export const addNewMainKey =async (key: string) => {
-  const serializableData = prepareDataForStorage<string>(key);
-   await db.mainKeys.add(serializableData) 
+  try {
+    await db.mainKeys.add({ id: key });
+  } catch (error) {
+    if(error instanceof Error )
+    console.error('Error adding key to mainKeys:', error.message);
+  }
 }
 
 export const addNewSubKey = async (key: string) => {
-  const serializableData = prepareDataForStorage<string>(key)
-  await db.subKeys.add(serializableData) 
+  try {
+    await db.subKeys.add({id: key}) 
+  } catch (error) {
+    if(error instanceof Error )
+    console.error('Error adding key to subKeys:', error.message);
+  }
+
 }
 export const addNewColums = async (val: IColumn) => {
   const serializableData = prepareDataForStorage<IColumn>(val);

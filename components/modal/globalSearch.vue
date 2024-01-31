@@ -10,7 +10,7 @@
             <a-divider dashed  plain orientation="left"><a-typography-title :level="5">Основная информация</a-typography-title></a-divider>
                 <template v-for="(item, index) in mainCriteria" :key="index">
                         <a-form-item
-                            :label="item.label"
+                            :label="item.label ? item.label : formState.main[checkKey(item.key, 'main')]  "
                         >
                         <template v-if="item.list">
                             <div v-if="item.hasChildren">
@@ -114,8 +114,8 @@ function onSubmit() {
 }
 function fetchProps() { 
     const mainList =  Object.entries(props.params)
-    const formStateList = Object.entries(formState.main)
-    const formStateSubList = Object.entries(formState.sub)
+    const formStateList = Object.entries(tableStore.formState.main)
+       const formStateSubList = Object.entries(tableStore.formState.sub)
        mainList.forEach(e => {
             const findElement = formStateList.find(t => t[0] === e[0])
           
@@ -137,14 +137,14 @@ function fetchProps() {
        
 }
 
-function mergeEntries(entries: any[]): IListCrieria[] {
+function mergeEntries(entries: any[]): IListCrieria[] {    
   const grouped = entries.reduce((acc, entry) => {
     // Если ключ уже есть в аккумуляторе, объединяем списки
     
     if (acc[entry.key]) {
       const existingValues = acc[entry.key].list.map((item: { value: any; }) => item.value);
       entry.list.forEach((item: { value: string; }) => {
-        if (item.value.trim() !== '' && !existingValues.includes(item.value)) {
+        if (item.value !== '' && !existingValues.includes(item.value)) {
           acc[entry.key].list.push(item);
         }
       });
@@ -170,7 +170,8 @@ function fetchCurentCriteria() {
     })
     const list = mainList.map(obj => {
         return Object.entries(obj)
-        .filter(([key, _]) => key !== 'fullName' && key !== 'position' )
+        .filter(([key, val]) =>  {             
+            return key !== 'fullName' && key !== 'position'} )
         .map(([key, value]) => {
         return {
             label: translateName(key), // Предполагаем, что функция translateName переводит ключ
@@ -180,7 +181,7 @@ function fetchCurentCriteria() {
             ]
         };
         });
-    }).flat(); // Плоский массив после обработки каждого объекта\
+    }).flat().filter(e => e.label !== ''); // Плоский массив после обработки каждого объекта\
 
     const listSub = subList.map(obj => {
         return Object.entries(obj)
@@ -194,7 +195,7 @@ function fetchCurentCriteria() {
             ]
         };
         });
-    }).flat(); // Плоский массив после обработки каждого объекта
+    }).flat().filter(e => e.label !== ''); // Плоский массив после обработки каждого объекта
     subCriteria.value = mergeEntries(listSub);
     mainCriteria.value = mergeEntries(list)
     

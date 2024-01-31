@@ -72,6 +72,7 @@ import { checkKey, getRandomId } from '~/service/helper';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import { defineComponent } from 'vue';
 import type { IListCrieria } from '~/interface';
+import { updateCriteria } from '~/service/IndexedDBService';
 
 
 const emit = defineEmits(['update:open', 'newRules'])
@@ -99,7 +100,7 @@ const itemsMain = ref<{value: string}[]>([]);
 const itemsSub =  ref<{value: string}[]>([]);
 const subList = ref<{value: string}[]>([]);
 const listNewKeys = ref<string[]>([])
-
+const curentCritiria = ref<IListCrieria>()
 const listMain = computed(() => {    
    return  switchByMainOfSub.value ?  itemsMain.value : itemsSub.value
 })
@@ -119,11 +120,18 @@ function seachElementByName(name: string) {
 }
 
 // добавление кретерий в форму
-function addItem(actions: 'main' | 'sub') {
+async function addItem(actions: 'main' | 'sub') {
     if(actions === 'sub') {
         const newList = { value: formStateCriteria.newValueSub, label: formStateCriteria.newValueSub };
         tableStore.addListCriteria(formStateCriteria.name, newList);
         formStateCriteria.newValueSub = '';
+        if(curentCritiria.value) {
+            const body  = {
+                ...curentCritiria.value,
+                list: [newList]
+            }
+            await updateCriteria(curentCritiria.value.id, body)
+        }
     } else {
     //зависмости от чекбокса добавление происходит в основ или доп 
      addCriteria(switchByMainOfSub.value, formStateCriteria.newValueMian)    
@@ -135,13 +143,15 @@ function addCriteria(switchByMainOfSub: boolean, val: string) {
     const newCriteria = {
             label: formStateCriteria.newValueMian,
             key: `main.${getRandomId()}`,
-            hasChildren: false
+            hasChildren: false,
+            id: getRandomId(),
         };
-        const newCriteriaSub:IListCrieria = {
+    const newCriteriaSub:IListCrieria = {
                 label: formStateCriteria.newValueMian,
                 key: `sub.${getRandomId()}`,
-                hasChildren: false
-            };
+                hasChildren: false,
+                id: getRandomId(),
+    };
         const newColumn = {
             title: formStateCriteria.newValueMian,
             dataIndex: checkKey(newCriteria.key, 'main') 
@@ -162,7 +172,8 @@ function addCriteria(switchByMainOfSub: boolean, val: string) {
            tableStore.updatedRules(keyNew);
            listNewKeys.value.push(newCriteria.key);
            // добавление в форму нового ключа
-           tableStore.updatedForm(keyNew, 'main');    
+           tableStore.updatedForm(keyNew, 'main');
+           curentCritiria.value = newCriteria
     } else {
         tableStore.setColumns(newColumnSub);
         const keyNew = checkKey(newCriteriaSub.key, 'sub');        
@@ -171,6 +182,7 @@ function addCriteria(switchByMainOfSub: boolean, val: string) {
         tableStore.addCriteria(newCriteriaSub);
         listNewKeys.value.push(keyNew)
         tableStore.setSubKeys(newColumnSub.dataIndex)
+        curentCritiria.value = newCriteriaSub
     }
 
     tableStore.addCriteria(newCriteria);

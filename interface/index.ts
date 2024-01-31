@@ -61,6 +61,7 @@ export interface IListCrieria  {
   key: string
   hasChildren: boolean
   list?: IValue[] 
+  id: string
 }
 export interface IColumn {
   title: string

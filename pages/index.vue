@@ -13,12 +13,12 @@
             @search="onSearch"
             />
           <div style="height: 10px;"></div>
-            <a-button type="default"  :disabled="loading" @click="openModal">Создать</a-button>
-            <a-button type="default" :disabled="loading" style="margin-left: 10px;" @click="openSearhModal()">Поиск по критериям</a-button>
+          <a-button type="default" :disabled="loading"  @click.stop="openModal()">Создать</a-button>
+            <a-button type="default" :disabled="loading || !list.length" style="margin-left: 10px;" @click="openSearhModal()">Поиск по критериям</a-button>
             <a-button type="primary"  :disabled="loading" style="margin-left: 10px;" @click="exportToExcel">Скачать в Excel </a-button>
             <a-button type="dashed" style="margin-left: 10px;" @click="clearDate">Очистить таблицу</a-button>
           </div>
-  
+
           <div class="clearfix">
               <a-upload :accept="rulesByFile" :file-list="fileList" :before-upload="beforeUpload" @remove="handleRemove">
                 <a-button>
@@ -146,7 +146,7 @@ async function clearDate() {
 }
 
 // взаимодествие с модалками
-function openModal() {
+function openModal() {  
   currentItem.value = null
   showModal.value = true;
 }
